@@ -1,50 +1,85 @@
-# template-for-proposals
+# Intl Sequence Units
 
-A repository template for ECMAScript proposals.
+This proposal introduces the ability to format sequences of measurement units, such as "feet and inches" or "degrees and minutes", natively using `Intl.NumberFormat`.
 
-## Before creating a proposal
+**Stage**: 0  
+**Champion/Author**: Shane F Carr
 
-Please ensure the following:
-  1. You have read the [process document](https://tc39.github.io/process-document/)
-  1. You have reviewed the [existing proposals](https://github.com/tc39/proposals/)
-  1. You are aware that your proposal requires being a member of TC39, or locating a TC39 delegate to “champion” your proposal
+## Spec
 
-## Create your proposal repo
+You can browse the [ecmarkup output](https://tc39-transfer.github.io/proposal-intl-sequence-units/)
+or browse the [source](https://github.com/tc39-transfer/proposal-intl-sequence-units/blob/HEAD/spec.emu).
 
-Follow these steps:
-  1. Click the green [“use this template”](https://github.com/tc39/template-for-proposals/generate) button in the repo header. (Note: Do not fork this repo in GitHub's web interface, as that will later prevent transfer into the TC39 organization)
-  1. Update ecmarkup and the biblio to the latest version: `npm install --save-dev ecmarkup@latest && npm install --save-dev --save-exact @tc39/ecma262-biblio@latest`.
-  1. Go to your repo settings page:
-      1. Under “General”, under “Features”, ensure “Issues” is checked, and disable “Wiki”, and “Projects” (unless you intend to use Projects)
-      1. Under “Pull Requests”, check “Always suggest updating pull request branches” and “automatically delete head branches”
-      1. Under the “Pages” section on the left sidebar, and set the source to “deploy from a branch”, select “gh-pages” in the branch dropdown, and then ensure that “Enforce HTTPS” is checked.
-      1. Under the “Actions” section on the left sidebar, under “General”, select “Read and write permissions” under “Workflow permissions” and click “Save”
-  1. [“How to write a good explainer”][explainer] explains how to make a good first impression.
+## Motivation
 
-      > Each TC39 proposal should have a `README.md` file which explains the purpose
-      > of the proposal and its shape at a high level.
-      >
-      > ...
-      >
-      > The rest of this page can be used as a template ...
+Many measurement systems, particularly the US Customary System, frequently express measurements using multiple units in sequence. Common examples include:
+- A person's height: "5 feet, 11 inches"
+- An angle: "5 degrees, 30 minutes"
+- A weight: "2 pounds, 4 ounces"
 
-      Your explainer can point readers to the `index.html` generated from `spec.emu`
-      via markdown like
+Currently, formatting these requires developers to instantiate multiple `Intl.NumberFormat` instances and manually combine their outputs. This is not only cumbersome but also error-prone because the separators, order of units, and pluralization rules might differ across locales.
 
-      ```markdown
-      You can browse the [ecmarkup output](https://ACCOUNT.github.io/PROJECT/)
-      or browse the [source](https://github.com/ACCOUNT/PROJECT/blob/HEAD/spec.emu).
-      ```
+## Proposed Solution
 
-      where *ACCOUNT* and *PROJECT* are the first two path elements in your project's Github URL.
-      For example, for github.com/**tc39**/**template-for-proposals**, *ACCOUNT* is “tc39”
-      and *PROJECT* is “template-for-proposals”.
+This proposal extends `Intl.NumberFormat` to accept compound units separated by `-and-` (e.g., `foot-and-inch`, `degree-and-minute`).
 
+When using a sequence unit, the `format` and `formatToParts` methods accept a plain JavaScript object instead of a single number. This object should contain properties corresponding to the individual sub-units in the sequence.
 
-## Maintain your proposal repo
+### Examples
 
-  1. Make your changes to `spec.emu` (ecmarkup uses HTML syntax, but is not HTML, so I strongly suggest not naming it “.html”)
-  1. Any commit that makes meaningful changes to the spec, should run `npm run build` to verify that the build will succeed and the output looks as expected.
-  1. Whenever you update `ecmarkup`, run `npm run build` to verify that the build will succeed and the output looks as expected.
+```javascript
+const nf = new Intl.NumberFormat('en-US', {
+  style: 'unit',
+  unit: 'foot-and-inch',
+});
 
-  [explainer]: https://github.com/tc39/how-we-work/blob/HEAD/explainer.md
+// "5 feet, 11 inches"
+nf.format({ foot: 5, inch: 11 }); 
+
+const angleNf = new Intl.NumberFormat('en-US', {
+  style: 'unit',
+  unit: 'degree-and-minute-and-second',
+  unitDisplay: 'narrow'
+});
+
+// "5° 30′ 12″" (exact output depends on locale/narrow format for angle)
+angleNf.format({ degree: 5, minute: 30, second: 12 });
+```
+
+### How it works
+
+Under the hood, when formatting a sequence:
+1. It validates that all sub-units separated by `-and-` are sanctioned unit identifiers.
+2. It extracts the corresponding values from the passed object.
+3. It formats each value using the specified unit. For intermediate units, it uses default rounding (up to 3 fraction digits) to ensure that if non-integer values are provided, the precision is preserved (following a "Garbage In, Garbage Out" philosophy). The configured rounding and fraction settings of the `Intl.NumberFormat` instance are applied only to the final unit in the sequence.
+4. It combines the resulting formatted strings into a cohesive list using `Intl.ListFormat` under the hood, passing the appropriate `type: "unit"` and the number formatter's `unitDisplay` style, effectively handling locale-aware conjunctions and spacing correctly.
+
+### Error Handling
+
+When formatting a sequence unit, the object passed to `format` or `formatToParts` must contain a numeric value (or something coercible to a numeric value) for every sub-unit specified in the sequence. If any required field is missing or undefined, the method will throw a `TypeError`.
+
+```javascript
+const nf = new Intl.NumberFormat('en-US', {
+  style: 'unit',
+  unit: 'foot-and-inch',
+});
+
+// Throws a TypeError because 'inch' is missing
+nf.format({ foot: 5 }); 
+```
+
+## Prior Art
+
+The semantics and formatting patterns for sequence units are heavily inspired by Unicode Technical Standard #35 (LDML), specifically the section on [Unit Sequences (Mixed Units)](https://unicode.org/reports/tr35/tr35-general.html#Unit_Sequences). TR35 defines these as "composed sequences" (e.g., 5° 30′ or 3 ft 2 in) and specifies that the appropriate localized `listPattern` should be used to compose the units into a single formatted string. This proposal seeks to surface this standard behavior directly to ECMAScript developers.
+
+## Alternatives Considered
+
+### Formatting a scalar with auto-conversion
+
+An alternative approach would be to allow passing a single scalar value to `format`, and have the formatter automatically convert and partition the value into the sequence units. For example, calling `nf.format(6.5)` with the unit `foot-and-inch` could theoretically convert the decimal and automatically yield `"6 feet, 6 inches"`.
+
+This approach was not chosen for a few key reasons:
+
+- **Input Ambiguity**: It is not immediately obvious what unit the scalar input represents. In the example `foot-and-inch`, is `6.5` measured in feet or inches? This would require introducing a concept of a "base" input unit, which adds surface area to the API.
+- **Missing Conversion Data**: We cannot represent arbitrary custom sequence units using scalar values because the engine might not have the necessary data to perform the conversion (e.g., knowing how to convert a scalar into a custom sequence of units).
+- **Rounding Errors**: Converting a scalar value into a sequence of units often involves floating-point arithmetic, which can introduce subtle rounding errors. By requiring the user to provide pre-partitioned values, we avoid these inaccuracies and ensure the output exactly matches the developer's intent.
