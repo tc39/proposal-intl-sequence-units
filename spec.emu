@@ -35,22 +35,21 @@ contributors: Shane F Carr
       <emu-alg>
         1. If IsSanctionedSingleUnitIdentifier(_unitIdentifier_) is *true*, then
           1. Return *true*.
-        1. <del>Let _i_ be StringIndexOf(_unitIdentifier_, *"-per-"*, 0).</del>
-        1. <del>If _i_ is ~not-found~ or StringIndexOf(_unitIdentifier_, *"-per-"*, _i_ + 1) is not ~not-found~, then</del>
-          1. <del>Return *false*.</del>
-        1. <del>Assert: The five-character substring *"-per-"* occurs exactly once in _unitIdentifier_, at index _i_.</del>
-        1. <del>Let _numerator_ be the substring of _unitIdentifier_ from 0 to _i_.</del>
-        1. <del>Let _denominator_ be the substring of _unitIdentifier_ from _i_ + 5.</del>
-        1. <del>If IsSanctionedSingleUnitIdentifier(_numerator_) and IsSanctionedSingleUnitIdentifier(_denominator_) are both *true*, then</del>
-          1. <del>Return *true*.</del>
         1. <ins>Let _sequence_ be StringSplit(_unitIdentifier_, *"-and-"*).</ins>
         1. <ins>If the length of _sequence_ &gt; 1, then</ins>
           1. <ins>For each String _subUnit_ of _sequence_, do</ins>
             1. <ins>If IsSanctionedSingleUnitIdentifier(_subUnit_) is *false*, return *false*.</ins>
           1. <ins>Return *true*.</ins>
+        1. <del>Let _i_ be StringIndexOf(_unitIdentifier_, *"-per-"*, 0).</del>
+        1. <del>If _i_ is ~not-found~ or StringIndexOf(_unitIdentifier_, *"-per-"*, _i_ + 1) is not ~not-found~, then</del>
+          1. <del>Return *false*.</del>
+        1. <del>Assert: The five-character substring *"-per-"* occurs exactly once in _unitIdentifier_, at index _i_.</del>
         1. <ins>Let _per_ be StringSplit(_unitIdentifier_, *"-per-"*).</ins>
-        1. <ins>If the length of _per_ is 2, then</ins>
-          1. <ins>If IsSanctionedSingleUnitIdentifier(_per_[0]) and IsSanctionedSingleUnitIdentifier(_per_[1]) are both *true*, return *true*.</ins>
+        1. <ins>If the length of _per_ is not 2, return *false*.</ins>
+        1. Let _numerator_ be <del>the substring of _unitIdentifier_ from 0 to _i_</del> <ins>_per_[0]</ins>.
+        1. Let _denominator_ be <del>the substring of _unitIdentifier_ from _i_ + 5</del> <ins>_per_[1]</ins>.
+        1. If IsSanctionedSingleUnitIdentifier(_numerator_) and IsSanctionedSingleUnitIdentifier(_denominator_) are both *true*, then
+          1. Return *true*.
         1. Return *false*.
       </emu-alg>
     </emu-clause>
@@ -129,6 +128,7 @@ contributors: Shane F Carr
   <emu-clause id="sec-numberformat-abstracts">
     <h1>Abstract Operations for NumberFormat Objects</h1>
 
+    <ins class="block">
     <emu-clause id="sec-formatnumericsequence" type="abstract operation">
       <h1>
         FormatNumericSequence (
@@ -146,7 +146,9 @@ contributors: Shane F Carr
         1. Return _result_.
       </emu-alg>
     </emu-clause>
+    </ins>
 
+    <ins class="block">
     <emu-clause id="sec-formatnumericsequencetoparts" type="abstract operation">
       <h1>
         FormatNumericSequenceToParts (
@@ -169,7 +171,9 @@ contributors: Shane F Carr
         1. Return _result_.
       </emu-alg>
     </emu-clause>
+    </ins>
 
+    <ins class="block">
     <emu-clause id="sec-partitionsequenceunitpattern" type="abstract operation">
       <h1>
         PartitionSequenceUnitPattern (
@@ -239,5 +243,6 @@ contributors: Shane F Carr
         1. Return _flattenedPartsList_.
       </emu-alg>
     </emu-clause>
+    </ins>
   </emu-clause>
 </emu>
