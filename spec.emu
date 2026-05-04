@@ -86,6 +86,7 @@ contributors: Shane F Carr
           1. <ins>Let _values_ be a new empty List.</ins>
           1. <ins>For each String _subUnit_ of _sequence_, do</ins>
             1. <ins>Let _subValue_ be ? Get(_value_, _subUnit_).</ins>
+            1. <ins>If _subValue_ is *undefined*, throw a *TypeError* exception.</ins>
             1. <ins>Let _x_ be ? ToIntlMathematicalValue(_subValue_).</ins>
             1. <ins>Append _x_ to _values_.</ins>
           1. <ins>Return FormatNumericSequence(_nf_, _values_).</ins>
@@ -110,6 +111,7 @@ contributors: Shane F Carr
           1. <ins>Let _values_ be a new empty List.</ins>
           1. <ins>For each String _subUnit_ of _sequence_, do</ins>
             1. <ins>Let _subValue_ be ? Get(_value_, _subUnit_).</ins>
+            1. <ins>If _subValue_ is *undefined*, throw a *TypeError* exception.</ins>
             1. <ins>Let _x_ be ? ToIntlMathematicalValue(_subValue_).</ins>
             1. <ins>Append _x_ to _values_.</ins>
           1. <ins>Return FormatNumericSequenceToParts(_nf_, _values_).</ins>
@@ -200,7 +202,7 @@ contributors: Shane F Carr
           1. If _isLast_ is *false*, then
             1. Set _numberFormat_.[[RoundingType]] to ~fraction-digits~.
             1. Set _numberFormat_.[[MinimumFractionDigits]] to 0.
-            1. Set _numberFormat_.[[MaximumFractionDigits]] to 0.
+            1. Set _numberFormat_.[[MaximumFractionDigits]] to 3.
           1. Else,
             1. Set _numberFormat_.[[RoundingType]] to _originalRoundingType_.
             1. Set _numberFormat_.[[MinimumFractionDigits]] to _originalMinFD_.
