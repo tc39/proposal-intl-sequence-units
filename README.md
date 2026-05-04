@@ -68,6 +68,28 @@ const nf = new Intl.NumberFormat('en-US', {
 nf.format({ foot: 5 }); 
 ```
 
+### Integration with Intl Unit Protocol
+
+This proposal is designed to compose cleanly with the upcoming [Intl Unit Protocol](https://github.com/tc39/proposal-intl-unit-protocol) proposal. Under the Intl Unit Protocol, developers can pass both the value and the unit together in a single object to the `.format()` method, which is particularly useful when units are determined dynamically at runtime. 
+
+When sequence units are used alongside the Intl Unit Protocol, the `value` field simply takes the object containing the sub-units, maintaining consistent behavior:
+
+```javascript
+const nf = new Intl.NumberFormat('en-US');
+
+// "6 feet, 4 inches"
+nf.format({ 
+  unit: "foot-and-inch", 
+  value: { foot: 6, inch: 4 } 
+});
+```
+
+### Integration with Amount Proposal
+
+This proposal also naturally extends to the [Amount](https://github.com/tc39/proposal-intl-amount) proposal, which aims to provide a robust primitive for encapsulating a numeric value along with its unit and precision. 
+
+To represent a sequence unit, an `Amount` instance will need to internally store a structured value field (the object mapping sub-units to their respective scalar values) rather than a single scalar number. Because this proposal establishes that sequence units are fundamentally backed by objects, `Amount` can seamlessly adopt this same structural pattern to represent complex, multi-part measurements.
+
 ## Prior Art
 
 The semantics and formatting patterns for sequence units are heavily inspired by Unicode Technical Standard #35 (LDML), specifically the section on [Unit Sequences (Mixed Units)](https://unicode.org/reports/tr35/tr35-general.html#Unit_Sequences). TR35 defines these as "composed sequences" (e.g., 5° 30′ or 3 ft 2 in) and specifies that the appropriate localized `listPattern` should be used to compose the units into a single formatted string. This proposal seeks to surface this standard behavior directly to ECMAScript developers.
