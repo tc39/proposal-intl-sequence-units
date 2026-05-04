@@ -4,36 +4,103 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
 <script src="./spec.js"></script>
 <pre class="metadata">
-title: Proposal Title Goes Here
-stage: -1
-contributors: Your Name(s) Here
+title: Intl Sequence Units
+stage: 0
+contributors: Shane F Carr
 </pre>
 
-<emu-clause id="sec-demo-clause">
-  <h1>This is an emu-clause</h1>
-  <p>This is an algorithm:</p>
-  <emu-alg>
-    1. Let _proposal_ be *undefined*.
-    1. If IsAccepted(_proposal_) is *true*, then
-      1. Let _stage_ be *0*<sub>ℤ</sub>.
-    1. Else,
-      1. Let _stage_ be *-1*<sub>ℤ</sub>.
-    1. Return ? ToString(_stage_).
-  </emu-alg>
-</emu-clause>
+<emu-clause id="ecma402-locales-currencies-tz">
+  <h1>Identification of Locales, Currencies, Time Zones, Measurement Units, Numbering Systems, Collations, and Calendars</h1>
 
-<emu-clause id="sec-is-accepted" type="abstract operation">
-  <h1>
-      IsAccepted (
-        _proposal_: an ECMAScript language value
-      ): a Boolean
-  </h1>
-  <dl class="header">
-    <dt>description</dt>
-    <dd>Tells you if the proposal was accepted</dd>
-  </dl>
-  <emu-alg>
-    1. If _proposal_ is not a String, or is not accepted, return *false*.
-    1. Return *true*.
-  </emu-alg>
-</emu-clause>
+  <emu-clause id="sec-measurement-unit-identifiers">
+    <h1>Measurement Unit Identifiers</h1>
+
+    <p>This specification identifies measurement units using a <dfn variants="core unit identifiers,core unit ID,core unit IDs">core unit identifier</dfn> (or equivalently <em>core unit ID</em>) as defined by <a href="https://unicode.org/reports/tr35/tr35-general.html#Unit_Identifiers">Unicode Technical Standard #35 Part 2 General, Section 6.2 Unit Identifiers</a>. Their canonical form is a string containing only Unicode Basic Latin lowercase letters (U+0061 LATIN SMALL LETTER A through U+007A LATIN SMALL LETTER Z) with zero or more medial hyphens (U+002D HYPHEN-MINUS).</p>
+
+    <p>
+      Only a limited set of core unit identifiers are sanctioned.
+      Attempting to use an unsanctioned core unit identifier results in a *RangeError*.
+    </p>
+
+    <emu-clause id="sec-iswellformedunitidentifier" type="abstract operation">
+      <h1>
+        IsWellFormedUnitIdentifier (
+          _unitIdentifier_: a String,
+        ): a Boolean
+      </h1>
+      <dl class="header">
+        <dt>description</dt>
+        <dd>It verifies that the _unitIdentifier_ argument represents a well-formed core unit identifier that is either a sanctioned single unit or a complex unit formed by division of two sanctioned single units.</dd>
+      </dl>
+      <emu-alg>
+        1. If IsSanctionedSingleUnitIdentifier(_unitIdentifier_) is *true*, then
+          1. Return *true*.
+        1. Let _i_ be StringIndexOf(_unitIdentifier_, *"-per-"*, 0).
+        1. If _i_ is ~not-found~ or StringIndexOf(_unitIdentifier_, *"-per-"*, _i_ + 1) is not ~not-found~, then
+          1. Return *false*.
+        1. Assert: The five-character substring *"-per-"* occurs exactly once in _unitIdentifier_, at index _i_.
+        1. Let _numerator_ be the substring of _unitIdentifier_ from 0 to _i_.
+        1. Let _denominator_ be the substring of _unitIdentifier_ from _i_ + 5.
+        1. If IsSanctionedSingleUnitIdentifier(_numerator_) and IsSanctionedSingleUnitIdentifier(_denominator_) are both *true*, then
+          1. Return *true*.
+        1. Return *false*.
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+</emu>
+
+<emu-clause id="numberformat-objects">
+  <h1>NumberFormat Objects</h1>
+
+  <emu-clause id="sec-properties-of-intl-numberformat-prototype-object">
+    <h1>Properties of the Intl.NumberFormat Prototype Object</h1>
+
+    <p>The <dfn>Intl.NumberFormat prototype object</dfn>:</p>
+    <ul>
+      <li>is <dfn>%Intl.NumberFormat.prototype%</dfn>.</li>
+      <li>is an ordinary object.</li>
+      <li>is not an Intl.NumberFormat instance and does not have an [[InitializedNumberFormat]] internal slot or any of the other internal slots of Intl.NumberFormat instance objects.</li>
+      <li>has a [[Prototype]] internal slot whose value is %Object.prototype%.</li>
+    </ul>
+
+    <emu-clause id="sec-intl.numberformat.prototype.format">
+      <h1>get Intl.NumberFormat.prototype.format</h1>
+
+      <p>Intl.NumberFormat.prototype.format is an accessor property whose set accessor function is *undefined*. Its get accessor function performs the following steps:</p>
+
+      <emu-alg>
+        1. Let _nf_ be the *this* value.
+        1. If the implementation supports the normative optional constructor mode of <emu-xref href="#legacy-constructor"></emu-xref>, then
+          1. Set _nf_ to ? UnwrapNumberFormat(_nf_).
+        1. Perform ? RequireInternalSlot(_nf_, [[InitializedNumberFormat]]).
+        1. If _nf_.[[BoundFormat]] is *undefined*, then
+          1. Let _F_ be a new built-in function object as defined in Number Format Functions (<emu-xref href="#sec-number-format-functions"></emu-xref>).
+          1. Set _F_.[[NumberFormat]] to _nf_.
+          1. Set _nf_.[[BoundFormat]] to _F_.
+        1. Return _nf_.[[BoundFormat]].
+      </emu-alg>
+
+      <emu-note>
+        The returned function is bound to _nf_ so that it can be passed directly to `Array.prototype.map` or other functions.
+        This is considered a historical artefact, as part of a convention which is no longer followed for new features, but is preserved to maintain compatibility with existing programs.
+      </emu-note>
+    </emu-clause>
+
+    <emu-clause id="sec-intl.numberformat.prototype.formattoparts">
+      <h1>Intl.NumberFormat.prototype.formatToParts ( _value_ )</h1>
+
+      <p>When the `formatToParts` method is called with an optional argument _value_, the following steps are taken:</p>
+
+      <emu-alg>
+        1. Let _nf_ be the *this* value.
+        1. Perform ? RequireInternalSlot(_nf_, [[InitializedNumberFormat]]).
+        1. Let _x_ be ? ToIntlMathematicalValue(_value_).
+        1. Return FormatNumericToParts(_nf_, _x_).
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-numberformat-abstracts">
+    <h1>Abstract Operations for NumberFormat Objects</h1>
+  </emu-clause>
+</emu>
