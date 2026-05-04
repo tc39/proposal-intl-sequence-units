@@ -127,7 +127,7 @@ contributors: Shane F Carr
       <h1>
         FormatNumericSequence (
           _numberFormat_: an Intl.NumberFormat,
-          _values_: a List of mathematical values,
+          _values_: a List of Intl mathematical values,
         ): a String
       </h1>
       <dl class="header">
@@ -147,7 +147,7 @@ contributors: Shane F Carr
       <h1>
         FormatNumericSequenceToParts (
           _numberFormat_: an Intl.NumberFormat,
-          _values_: a List of mathematical values,
+          _values_: a List of Intl mathematical values,
         ): an Array
       </h1>
       <dl class="header">
@@ -172,7 +172,7 @@ contributors: Shane F Carr
       <h1>
         PartitionSequenceUnitPattern (
           _numberFormat_: an Intl.NumberFormat,
-          _values_: a List of mathematical values,
+          _values_: a List of Intl mathematical values,
         ): a List of Records with fields [[Type]] (a String) and [[Value]] (a String)
       </h1>
       <dl class="header">
@@ -193,7 +193,7 @@ contributors: Shane F Carr
         1. Let _originalMinSD_ be _numberFormat_.[[MinimumSignificantDigits]].
         1. Let _originalMaxSD_ be _numberFormat_.[[MaximumSignificantDigits]].
         1. Let _i_ be 0.
-        1. For each mathematical value _x_ of _values_, do
+        1. For each Intl mathematical value _x_ of _values_, do
           1. Let _isLast_ be *true* if _i_ = _sequence_'s length - 1, else *false*.
           1. Let _subUnit_ be _sequence_[_i_].
           1. Set _numberFormat_.[[Unit]] to _subUnit_.
