@@ -35,7 +35,7 @@ contributors: Shane F Carr
       <emu-alg>
         1. If IsSanctionedSingleUnitIdentifier(_unitIdentifier_) is *true*, then
           1. Return *true*.
-        1. <ins>Let _sequence_ be StringSplit(_unitIdentifier_, *"-and-"*).</ins>
+        1. <ins>Let _sequence_ be StringSplitToList(_unitIdentifier_, *"-and-"*).</ins>
         1. <ins>If the length of _sequence_ &gt; 1, then</ins>
           1. <ins>For each String _subUnit_ of _sequence_, do</ins>
             1. <ins>If IsSanctionedSingleUnitIdentifier(_subUnit_) is *false*, return *false*.</ins>
@@ -44,7 +44,7 @@ contributors: Shane F Carr
         1. <del>If _i_ is ~not-found~ or StringIndexOf(_unitIdentifier_, *"-per-"*, _i_ + 1) is not ~not-found~, then</del>
           1. <del>Return *false*.</del>
         1. <del>Assert: The five-character substring *"-per-"* occurs exactly once in _unitIdentifier_, at index _i_.</del>
-        1. <ins>Let _per_ be StringSplit(_unitIdentifier_, *"-per-"*).</ins>
+        1. <ins>Let _per_ be StringSplitToList(_unitIdentifier_, *"-per-"*).</ins>
         1. <ins>If the length of _per_ is not 2, return *false*.</ins>
         1. Let _numerator_ be <del>the substring of _unitIdentifier_ from 0 to _i_</del> <ins>_per_[0]</ins>.
         1. Let _denominator_ be <del>the substring of _unitIdentifier_ from _i_ + 5</del> <ins>_per_[1]</ins>.
@@ -54,7 +54,7 @@ contributors: Shane F Carr
       </emu-alg>
     </emu-clause>
   </emu-clause>
-</emu>
+</emu-clause>
 
 <emu-clause id="numberformat-objects">
   <h1>NumberFormat Objects</h1>
@@ -70,36 +70,30 @@ contributors: Shane F Carr
       <li>has a [[Prototype]] internal slot whose value is %Object.prototype%.</li>
     </ul>
 
-    <emu-clause id="sec-intl.numberformat.prototype.format">
-      <h1>get Intl.NumberFormat.prototype.format</h1>
+    <emu-clause id="sec-number-format-functions">
+      <h1>Number Format Functions</h1>
 
-      <p>Intl.NumberFormat.prototype.format is an accessor property whose set accessor function is *undefined*. Its get accessor function performs the following steps:</p>
+      <p>A Number format function is an anonymous built-in function that has a [[NumberFormat]] internal slot.</p>
+      <p>When a Number format function _F_ is called with optional argument _value_, the following steps are taken:</p>
 
       <emu-alg>
-        1. Let _nf_ be the *this* value.
-        1. If the implementation supports the normative optional constructor mode of <emu-xref href="#legacy-constructor"></emu-xref>, then
-          1. Set _nf_ to ? UnwrapNumberFormat(_nf_).
+        1. Let _nf_ be _F_.[[NumberFormat]].
+        1. Assert: _nf_ is an Object and _nf_ has an [[InitializedNumberFormat]] internal slot.
+        1. If _value_ is not provided, let _value_ be *undefined*.
         1. <ins>If _nf_.[[Style]] is *"unit"* and StringIndexOf(_nf_.[[Unit]], *"-and-"*, 0) is not ~not-found~, then</ins>
-          1. <ins>If Type(_value_) is not Object, throw a *TypeError* exception.</ins>
-          1. <ins>Let _sequence_ be StringSplit(_nf_.[[Unit]], *"-and-"*).</ins>
+          1. <ins>If _value_ is not an Object, throw a *TypeError* exception.</ins>
+          1. <ins>Let _sequence_ be StringSplitToList(_nf_.[[Unit]], *"-and-"*).</ins>
           1. <ins>Let _values_ be a new empty List.</ins>
           1. <ins>For each String _subUnit_ of _sequence_, do</ins>
             1. <ins>Let _subValue_ be ? Get(_value_, _subUnit_).</ins>
             1. <ins>Let _x_ be ? ToIntlMathematicalValue(_subValue_).</ins>
             1. <ins>Append _x_ to _values_.</ins>
-          1. <ins>Return ? FormatNumericSequence(_nf_, _values_).</ins>
-        1. Perform ? RequireInternalSlot(_nf_, [[InitializedNumberFormat]]).
-        1. If _nf_.[[BoundFormat]] is *undefined*, then
-          1. Let _F_ be a new built-in function object as defined in Number Format Functions (<emu-xref href="#sec-number-format-functions"></emu-xref>).
-          1. Set _F_.[[NumberFormat]] to _nf_.
-          1. Set _nf_.[[BoundFormat]] to _F_.
-        1. Return _nf_.[[BoundFormat]].
+          1. <ins>Return FormatNumericSequence(_nf_, _values_).</ins>
+        1. Let _x_ be ? ToIntlMathematicalValue(_value_).
+        1. Return FormatNumeric(_nf_, _x_).
       </emu-alg>
 
-      <emu-note>
-        The returned function is bound to _nf_ so that it can be passed directly to `Array.prototype.map` or other functions.
-        This is considered a historical artefact, as part of a convention which is no longer followed for new features, but is preserved to maintain compatibility with existing programs.
-      </emu-note>
+      <p>The *"length"* property of a Number format function is *1*<sub>𝔽</sub>.</p>
     </emu-clause>
 
     <emu-clause id="sec-intl.numberformat.prototype.formattoparts">
@@ -111,14 +105,14 @@ contributors: Shane F Carr
         1. Let _nf_ be the *this* value.
         1. Perform ? RequireInternalSlot(_nf_, [[InitializedNumberFormat]]).
         1. <ins>If _nf_.[[Style]] is *"unit"* and StringIndexOf(_nf_.[[Unit]], *"-and-"*, 0) is not ~not-found~, then</ins>
-          1. <ins>If Type(_value_) is not Object, throw a *TypeError* exception.</ins>
-          1. <ins>Let _sequence_ be StringSplit(_nf_.[[Unit]], *"-and-"*).</ins>
+          1. <ins>If _value_ is not an Object, throw a *TypeError* exception.</ins>
+          1. <ins>Let _sequence_ be StringSplitToList(_nf_.[[Unit]], *"-and-"*).</ins>
           1. <ins>Let _values_ be a new empty List.</ins>
           1. <ins>For each String _subUnit_ of _sequence_, do</ins>
             1. <ins>Let _subValue_ be ? Get(_value_, _subUnit_).</ins>
             1. <ins>Let _x_ be ? ToIntlMathematicalValue(_subValue_).</ins>
             1. <ins>Append _x_ to _values_.</ins>
-          1. <ins>Return ? FormatNumericSequenceToParts(_nf_, _values_).</ins>
+          1. <ins>Return FormatNumericSequenceToParts(_nf_, _values_).</ins>
         1. Let _x_ be ? ToIntlMathematicalValue(_value_).
         1. Return FormatNumericToParts(_nf_, _x_).
       </emu-alg>
@@ -134,12 +128,12 @@ contributors: Shane F Carr
         FormatNumericSequence (
           _numberFormat_: an Intl.NumberFormat,
           _values_: a List of mathematical values,
-        ): a normal completion containing a String, or a throw completion
+        ): a String
       </h1>
       <dl class="header">
       </dl>
       <emu-alg>
-        1. Let _parts_ be ? PartitionSequenceUnitPattern(_numberFormat_, _values_).
+        1. Let _parts_ be PartitionSequenceUnitPattern(_numberFormat_, _values_).
         1. Let _result_ be the empty String.
         1. For each Record { [[Type]], [[Value]] } _part_ of _parts_, do
           1. Set _result_ to the string-concatenation of _result_ and _part_.[[Value]].
@@ -154,12 +148,12 @@ contributors: Shane F Carr
         FormatNumericSequenceToParts (
           _numberFormat_: an Intl.NumberFormat,
           _values_: a List of mathematical values,
-        ): a normal completion containing an Array, or a throw completion
+        ): an Array
       </h1>
       <dl class="header">
       </dl>
       <emu-alg>
-        1. Let _parts_ be ? PartitionSequenceUnitPattern(_numberFormat_, _values_).
+        1. Let _parts_ be PartitionSequenceUnitPattern(_numberFormat_, _values_).
         1. Let _result_ be ! ArrayCreate(0).
         1. Let _n_ be 0.
         1. For each Record { [[Type]], [[Value]] } _part_ of _parts_, do
@@ -179,13 +173,13 @@ contributors: Shane F Carr
         PartitionSequenceUnitPattern (
           _numberFormat_: an Intl.NumberFormat,
           _values_: a List of mathematical values,
-        ): a normal completion containing a List of Records with fields [[Type]] (a String) and [[Value]] (a String), or a throw completion
+        ): a List of Records with fields [[Type]] (a String) and [[Value]] (a String)
       </h1>
       <dl class="header">
       </dl>
       <emu-alg>
         1. Assert: _numberFormat_.[[Style]] is *"unit"* and StringIndexOf(_numberFormat_.[[Unit]], *"-and-"*, 0) is not ~not-found~.
-        1. Let _sequence_ be StringSplit(_numberFormat_.[[Unit]], *"-and-"*).
+        1. Let _sequence_ be StringSplitToList(_numberFormat_.[[Unit]], *"-and-"*).
         1. Let _partitionedPartsList_ be a new empty List.
         1. Let _lfOpts_ be OrdinaryObjectCreate(*null*).
         1. Perform ! CreateDataPropertyOrThrow(_lfOpts_, *"type"*, *"unit"*).
@@ -199,7 +193,7 @@ contributors: Shane F Carr
         1. Let _originalMinSD_ be _numberFormat_.[[MinimumSignificantDigits]].
         1. Let _originalMaxSD_ be _numberFormat_.[[MaximumSignificantDigits]].
         1. Let _i_ be 0.
-        1. For each _x_ of _values_, do
+        1. For each mathematical value _x_ of _values_, do
           1. Let _isLast_ be *true* if _i_ = _sequence_'s length - 1, else *false*.
           1. Let _subUnit_ be _sequence_[_i_].
           1. Set _numberFormat_.[[Unit]] to _subUnit_.
@@ -245,4 +239,4 @@ contributors: Shane F Carr
     </emu-clause>
     </ins>
   </emu-clause>
-</emu>
+</emu-clause>
