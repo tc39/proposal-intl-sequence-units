@@ -35,14 +35,22 @@ contributors: Shane F Carr
       <emu-alg>
         1. If IsSanctionedSingleUnitIdentifier(_unitIdentifier_) is *true*, then
           1. Return *true*.
-        1. Let _i_ be StringIndexOf(_unitIdentifier_, *"-per-"*, 0).
-        1. If _i_ is ~not-found~ or StringIndexOf(_unitIdentifier_, *"-per-"*, _i_ + 1) is not ~not-found~, then
-          1. Return *false*.
-        1. Assert: The five-character substring *"-per-"* occurs exactly once in _unitIdentifier_, at index _i_.
-        1. Let _numerator_ be the substring of _unitIdentifier_ from 0 to _i_.
-        1. Let _denominator_ be the substring of _unitIdentifier_ from _i_ + 5.
-        1. If IsSanctionedSingleUnitIdentifier(_numerator_) and IsSanctionedSingleUnitIdentifier(_denominator_) are both *true*, then
-          1. Return *true*.
+        1. <del>Let _i_ be StringIndexOf(_unitIdentifier_, *"-per-"*, 0).</del>
+        1. <del>If _i_ is ~not-found~ or StringIndexOf(_unitIdentifier_, *"-per-"*, _i_ + 1) is not ~not-found~, then</del>
+          1. <del>Return *false*.</del>
+        1. <del>Assert: The five-character substring *"-per-"* occurs exactly once in _unitIdentifier_, at index _i_.</del>
+        1. <del>Let _numerator_ be the substring of _unitIdentifier_ from 0 to _i_.</del>
+        1. <del>Let _denominator_ be the substring of _unitIdentifier_ from _i_ + 5.</del>
+        1. <del>If IsSanctionedSingleUnitIdentifier(_numerator_) and IsSanctionedSingleUnitIdentifier(_denominator_) are both *true*, then</del>
+          1. <del>Return *true*.</del>
+        1. <ins>Let _sequence_ be StringSplit(_unitIdentifier_, *"-and-"*).</ins>
+        1. <ins>If the length of _sequence_ &gt; 1, then</ins>
+          1. <ins>For each String _subUnit_ of _sequence_, do</ins>
+            1. <ins>If IsSanctionedSingleUnitIdentifier(_subUnit_) is *false*, return *false*.</ins>
+          1. <ins>Return *true*.</ins>
+        1. <ins>Let _per_ be StringSplit(_unitIdentifier_, *"-per-"*).</ins>
+        1. <ins>If the length of _per_ is 2, then</ins>
+          1. <ins>If IsSanctionedSingleUnitIdentifier(_per_[0]) and IsSanctionedSingleUnitIdentifier(_per_[1]) are both *true*, return *true*.</ins>
         1. Return *false*.
       </emu-alg>
     </emu-clause>
@@ -72,6 +80,15 @@ contributors: Shane F Carr
         1. Let _nf_ be the *this* value.
         1. If the implementation supports the normative optional constructor mode of <emu-xref href="#legacy-constructor"></emu-xref>, then
           1. Set _nf_ to ? UnwrapNumberFormat(_nf_).
+        1. <ins>If _nf_.[[Style]] is *"unit"* and StringIndexOf(_nf_.[[Unit]], *"-and-"*, 0) is not ~not-found~, then</ins>
+          1. <ins>If Type(_value_) is not Object, throw a *TypeError* exception.</ins>
+          1. <ins>Let _sequence_ be StringSplit(_nf_.[[Unit]], *"-and-"*).</ins>
+          1. <ins>Let _values_ be a new empty List.</ins>
+          1. <ins>For each String _subUnit_ of _sequence_, do</ins>
+            1. <ins>Let _subValue_ be ? Get(_value_, _subUnit_).</ins>
+            1. <ins>Let _x_ be ? ToIntlMathematicalValue(_subValue_).</ins>
+            1. <ins>Append _x_ to _values_.</ins>
+          1. <ins>Return ? FormatNumericSequence(_nf_, _values_).</ins>
         1. Perform ? RequireInternalSlot(_nf_, [[InitializedNumberFormat]]).
         1. If _nf_.[[BoundFormat]] is *undefined*, then
           1. Let _F_ be a new built-in function object as defined in Number Format Functions (<emu-xref href="#sec-number-format-functions"></emu-xref>).
@@ -94,6 +111,15 @@ contributors: Shane F Carr
       <emu-alg>
         1. Let _nf_ be the *this* value.
         1. Perform ? RequireInternalSlot(_nf_, [[InitializedNumberFormat]]).
+        1. <ins>If _nf_.[[Style]] is *"unit"* and StringIndexOf(_nf_.[[Unit]], *"-and-"*, 0) is not ~not-found~, then</ins>
+          1. <ins>If Type(_value_) is not Object, throw a *TypeError* exception.</ins>
+          1. <ins>Let _sequence_ be StringSplit(_nf_.[[Unit]], *"-and-"*).</ins>
+          1. <ins>Let _values_ be a new empty List.</ins>
+          1. <ins>For each String _subUnit_ of _sequence_, do</ins>
+            1. <ins>Let _subValue_ be ? Get(_value_, _subUnit_).</ins>
+            1. <ins>Let _x_ be ? ToIntlMathematicalValue(_subValue_).</ins>
+            1. <ins>Append _x_ to _values_.</ins>
+          1. <ins>Return ? FormatNumericSequenceToParts(_nf_, _values_).</ins>
         1. Let _x_ be ? ToIntlMathematicalValue(_value_).
         1. Return FormatNumericToParts(_nf_, _x_).
       </emu-alg>
@@ -102,5 +128,116 @@ contributors: Shane F Carr
 
   <emu-clause id="sec-numberformat-abstracts">
     <h1>Abstract Operations for NumberFormat Objects</h1>
+
+    <emu-clause id="sec-formatnumericsequence" type="abstract operation">
+      <h1>
+        FormatNumericSequence (
+          _numberFormat_: an Intl.NumberFormat,
+          _values_: a List of mathematical values,
+        ): a normal completion containing a String, or a throw completion
+      </h1>
+      <dl class="header">
+      </dl>
+      <emu-alg>
+        1. Let _parts_ be ? PartitionSequenceUnitPattern(_numberFormat_, _values_).
+        1. Let _result_ be the empty String.
+        1. For each Record { [[Type]], [[Value]] } _part_ of _parts_, do
+          1. Set _result_ to the string-concatenation of _result_ and _part_.[[Value]].
+        1. Return _result_.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-formatnumericsequencetoparts" type="abstract operation">
+      <h1>
+        FormatNumericSequenceToParts (
+          _numberFormat_: an Intl.NumberFormat,
+          _values_: a List of mathematical values,
+        ): a normal completion containing an Array, or a throw completion
+      </h1>
+      <dl class="header">
+      </dl>
+      <emu-alg>
+        1. Let _parts_ be ? PartitionSequenceUnitPattern(_numberFormat_, _values_).
+        1. Let _result_ be ! ArrayCreate(0).
+        1. Let _n_ be 0.
+        1. For each Record { [[Type]], [[Value]] } _part_ of _parts_, do
+          1. Let _O_ be OrdinaryObjectCreate(%Object.prototype%).
+          1. Perform ! CreateDataPropertyOrThrow(_O_, *"type"*, _part_.[[Type]]).
+          1. Perform ! CreateDataPropertyOrThrow(_O_, *"value"*, _part_.[[Value]]).
+          1. Perform ! CreateDataPropertyOrThrow(_result_, ! ToString(𝔽(_n_)), _O_).
+          1. Increment _n_ by 1.
+        1. Return _result_.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-partitionsequenceunitpattern" type="abstract operation">
+      <h1>
+        PartitionSequenceUnitPattern (
+          _numberFormat_: an Intl.NumberFormat,
+          _values_: a List of mathematical values,
+        ): a normal completion containing a List of Records with fields [[Type]] (a String) and [[Value]] (a String), or a throw completion
+      </h1>
+      <dl class="header">
+      </dl>
+      <emu-alg>
+        1. Assert: _numberFormat_.[[Style]] is *"unit"* and StringIndexOf(_numberFormat_.[[Unit]], *"-and-"*, 0) is not ~not-found~.
+        1. Let _sequence_ be StringSplit(_numberFormat_.[[Unit]], *"-and-"*).
+        1. Let _partitionedPartsList_ be a new empty List.
+        1. Let _lfOpts_ be OrdinaryObjectCreate(*null*).
+        1. Perform ! CreateDataPropertyOrThrow(_lfOpts_, *"type"*, *"unit"*).
+        1. Perform ! CreateDataPropertyOrThrow(_lfOpts_, *"style"*, _numberFormat_.[[UnitDisplay]]).
+        1. Let _lf_ be ! Construct(%Intl.ListFormat%, « _numberFormat_.[[Locale]], _lfOpts_ »).
+        1. Let _strings_ be a new empty List.
+        1. Let _originalUnit_ be _numberFormat_.[[Unit]].
+        1. Let _originalRoundingType_ be _numberFormat_.[[RoundingType]].
+        1. Let _originalMinFD_ be _numberFormat_.[[MinimumFractionDigits]].
+        1. Let _originalMaxFD_ be _numberFormat_.[[MaximumFractionDigits]].
+        1. Let _originalMinSD_ be _numberFormat_.[[MinimumSignificantDigits]].
+        1. Let _originalMaxSD_ be _numberFormat_.[[MaximumSignificantDigits]].
+        1. Let _i_ be 0.
+        1. For each _x_ of _values_, do
+          1. Let _isLast_ be *true* if _i_ = _sequence_'s length - 1, else *false*.
+          1. Let _subUnit_ be _sequence_[_i_].
+          1. Set _numberFormat_.[[Unit]] to _subUnit_.
+          1. If _isLast_ is *false*, then
+            1. Set _numberFormat_.[[RoundingType]] to ~fraction-digits~.
+            1. Set _numberFormat_.[[MinimumFractionDigits]] to 0.
+            1. Set _numberFormat_.[[MaximumFractionDigits]] to 0.
+          1. Else,
+            1. Set _numberFormat_.[[RoundingType]] to _originalRoundingType_.
+            1. Set _numberFormat_.[[MinimumFractionDigits]] to _originalMinFD_.
+            1. Set _numberFormat_.[[MaximumFractionDigits]] to _originalMaxFD_.
+            1. Set _numberFormat_.[[MinimumSignificantDigits]] to _originalMinSD_.
+            1. Set _numberFormat_.[[MaximumSignificantDigits]] to _originalMaxSD_.
+          1. Let _parts_ be PartitionNumberPattern(_numberFormat_, _x_).
+          1. Append _parts_ to _partitionedPartsList_.
+          1. Let _string_ be the empty String.
+          1. For each Record { [[Type]], [[Value]] } _part_ in _parts_, do
+            1. Set _string_ to the string-concatenation of _string_ and _part_.[[Value]].
+          1. Append _string_ to _strings_.
+          1. Set _i_ to _i_ + 1.
+        1. Set _numberFormat_.[[Unit]] to _originalUnit_.
+        1. Set _numberFormat_.[[RoundingType]] to _originalRoundingType_.
+        1. Set _numberFormat_.[[MinimumFractionDigits]] to _originalMinFD_.
+        1. Set _numberFormat_.[[MaximumFractionDigits]] to _originalMaxFD_.
+        1. Set _numberFormat_.[[MinimumSignificantDigits]] to _originalMinSD_.
+        1. Set _numberFormat_.[[MaximumSignificantDigits]] to _originalMaxSD_.
+        1. Let _formattedPartsList_ be CreatePartsFromList(_lf_, _strings_).
+        1. Let _flattenedPartsList_ be a new empty List.
+        1. Let _partitionedPartsIndex_ be 0.
+        1. Let _partitionedLength_ be the number of elements in _partitionedPartsList_.
+        1. For each Record { [[Type]], [[Value]] } _listPart_ in _formattedPartsList_, do
+          1. If _listPart_.[[Type]] is *"element"*, then
+            1. Assert: _partitionedPartsIndex_ &lt; _partitionedLength_.
+            1. Let _parts_ be _partitionedPartsList_[_partitionedPartsIndex_].
+            1. For each Record { [[Type]], [[Value]] } _part_ in _parts_, do
+              1. Append _part_ to _flattenedPartsList_.
+            1. Set _partitionedPartsIndex_ to _partitionedPartsIndex_ + 1.
+          1. Else,
+            1. Assert: _listPart_.[[Type]] is *"literal"*.
+            1. Append the Record { [[Type]]: *"literal"*, [[Value]]: _listPart_.[[Value]] } to _flattenedPartsList_.
+        1. Return _flattenedPartsList_.
+      </emu-alg>
+    </emu-clause>
   </emu-clause>
 </emu>
