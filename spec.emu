@@ -218,17 +218,15 @@ contributors: Shane F Carr
         1. Let _formattedPartsList_ be CreatePartsFromList(_lf_, _strings_).
         1. Let _flattenedPartsList_ be a new empty List.
         1. Let _partitionedPartsIndex_ be 0.
-        1. Let _partitionedLength_ be the number of elements in _partitionedPartsList_.
+        1. NOTE: The following loop substitutes the formatted elements returned by CreatePartsFromList with the detailed parts saved in _partitionedPartsList_.
         1. For each Record { [[Type]], [[Value]] } _listPart_ in _formattedPartsList_, do
           1. If _listPart_.[[Type]] is *"element"*, then
-            1. Assert: _partitionedPartsIndex_ &lt; _partitionedLength_.
             1. Let _parts_ be _partitionedPartsList_[_partitionedPartsIndex_].
-            1. For each Record { [[Type]], [[Value]] } _part_ in _parts_, do
-              1. Append _part_ to _flattenedPartsList_.
+            1. Append the elements of _parts_ to _flattenedPartsList_.
             1. Set _partitionedPartsIndex_ to _partitionedPartsIndex_ + 1.
           1. Else,
             1. Assert: _listPart_.[[Type]] is *"literal"*.
-            1. Append the Record { [[Type]]: *"literal"*, [[Value]]: _listPart_.[[Value]] } to _flattenedPartsList_.
+            1. Append _listPart_ to _flattenedPartsList_.
         1. Return _flattenedPartsList_.
       </emu-alg>
     </emu-clause>
