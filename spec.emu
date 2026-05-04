@@ -215,11 +215,6 @@ contributors: Shane F Carr
           1. Append _string_ to _strings_.
           1. Set _i_ to _i_ + 1.
         1. Set _numberFormat_.[[Unit]] to _originalUnit_.
-        1. Set _numberFormat_.[[RoundingType]] to _originalRoundingType_.
-        1. Set _numberFormat_.[[MinimumFractionDigits]] to _originalMinFD_.
-        1. Set _numberFormat_.[[MaximumFractionDigits]] to _originalMaxFD_.
-        1. Set _numberFormat_.[[MinimumSignificantDigits]] to _originalMinSD_.
-        1. Set _numberFormat_.[[MaximumSignificantDigits]] to _originalMaxSD_.
         1. Let _formattedPartsList_ be CreatePartsFromList(_lf_, _strings_).
         1. Let _flattenedPartsList_ be a new empty List.
         1. Let _partitionedPartsIndex_ be 0.
