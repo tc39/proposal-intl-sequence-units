@@ -19,6 +19,8 @@ Measurement systems frequently employ multiple units in sequence to express a si
 
 Current ECMAScript implementations require manual composition of multiple `Intl.NumberFormat` outputs. This approach introduces risk regarding localized separators, unit ordering, and pluralization agreement, which vary significantly across locales. This proposal addresses these requirements by providing a standardized interface for multi-unit formatting.
 
+Original ECMA-402 issue: [https://github.com/tc39/ecma402/issues/398](https://github.com/tc39/ecma402/issues/398)
+
 ## Proposed Solution
 
 `Intl.NumberFormat` is extended to support compound unit identifiers joined by the `-and-` separator (e.g., `foot-and-inch`, `degree-and-minute`).
