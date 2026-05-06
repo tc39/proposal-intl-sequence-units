@@ -38,6 +38,9 @@ const nf = new Intl.NumberFormat('en-US', {
 // "5 feet, 11 inches"
 nf.format({ foot: 5, inch: 11 }); 
 
+// "-5 feet, 11 inches" (Only the first unit renders the minus sign)
+nf.format({ foot: -5, inch: -11 }); 
+
 const angleNf = new Intl.NumberFormat('en-US', {
   style: 'unit',
   unit: 'degree-and-minute-and-second',
