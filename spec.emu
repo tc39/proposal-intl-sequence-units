@@ -121,7 +121,7 @@ contributors: Shane F Carr
       <dl class="header">
       </dl>
       <emu-alg>
-        1. If Type(_value_) is not Object, throw a *TypeError* exception.
+        1. If _value_ is not an Object, throw a *TypeError* exception.
         1. Let _sequence_ be StringSplitToList(_unit_, *"-and-"*).
         1. Let _values_ be a new empty List.
         1. Let _hasNegative_ be *false*.
