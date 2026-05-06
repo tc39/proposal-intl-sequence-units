@@ -84,10 +84,15 @@ contributors: Shane F Carr
           1. <ins>If _value_ is not an Object, throw a *TypeError* exception.</ins>
           1. <ins>Let _sequence_ be StringSplitToList(_nf_.[[Unit]], *"-and-"*).</ins>
           1. <ins>Let _values_ be a new empty List.</ins>
+          1. <ins>Let _hasNegative_ be *false*.</ins>
+          1. <ins>Let _hasPositive_ be *false*.</ins>
           1. <ins>For each String _subUnit_ of _sequence_, do</ins>
             1. <ins>Let _subValue_ be ? Get(_value_, _subUnit_).</ins>
             1. <ins>If _subValue_ is *undefined*, throw a *TypeError* exception.</ins>
             1. <ins>Let _x_ be ? ToIntlMathematicalValue(_subValue_).</ins>
+            1. <ins>If _x_ &lt; 0, set _hasNegative_ to *true*.</ins>
+            1. <ins>If _x_ &gt; 0, set _hasPositive_ to *true*.</ins>
+            1. <ins>If _hasNegative_ is *true* and _hasPositive_ is *true*, throw a *RangeError* exception.</ins>
             1. <ins>Append _x_ to _values_.</ins>
           1. <ins>Return FormatNumericSequence(_nf_, _values_).</ins>
         1. Let _x_ be ? ToIntlMathematicalValue(_value_).
@@ -109,10 +114,15 @@ contributors: Shane F Carr
           1. <ins>If _value_ is not an Object, throw a *TypeError* exception.</ins>
           1. <ins>Let _sequence_ be StringSplitToList(_nf_.[[Unit]], *"-and-"*).</ins>
           1. <ins>Let _values_ be a new empty List.</ins>
+          1. <ins>Let _hasNegative_ be *false*.</ins>
+          1. <ins>Let _hasPositive_ be *false*.</ins>
           1. <ins>For each String _subUnit_ of _sequence_, do</ins>
             1. <ins>Let _subValue_ be ? Get(_value_, _subUnit_).</ins>
             1. <ins>If _subValue_ is *undefined*, throw a *TypeError* exception.</ins>
             1. <ins>Let _x_ be ? ToIntlMathematicalValue(_subValue_).</ins>
+            1. <ins>If _x_ &lt; 0, set _hasNegative_ to *true*.</ins>
+            1. <ins>If _x_ &gt; 0, set _hasPositive_ to *true*.</ins>
+            1. <ins>If _hasNegative_ is *true* and _hasPositive_ is *true*, throw a *RangeError* exception.</ins>
             1. <ins>Append _x_ to _values_.</ins>
           1. <ins>Return FormatNumericSequenceToParts(_nf_, _values_).</ins>
         1. Let _x_ be ? ToIntlMathematicalValue(_value_).

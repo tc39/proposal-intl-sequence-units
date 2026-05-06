@@ -60,7 +60,7 @@ The formatting procedure for sequence units follows these steps:
 
 ### Error Handling
 
-Inputs to `format` or `formatToParts` must contain a value for every sub-unit defined in the unit identifier. If a required property is `undefined` or missing, a `TypeError` is thrown.
+Inputs to `format` or `formatToParts` must contain a value for every sub-unit defined in the unit identifier. If a required property is `undefined` or missing, a `TypeError` is thrown. Additionally, all sub-units must have the same sign; mixing positive and negative values (e.g., `{ foot: 5, inch: -11 }`) will throw a `RangeError`.
 
 ```javascript
 const nf = new Intl.NumberFormat('en-US', {
@@ -70,6 +70,9 @@ const nf = new Intl.NumberFormat('en-US', {
 
 // Throws TypeError: 'inch' property is missing
 nf.format({ foot: 5 }); 
+
+// Throws RangeError: sub-units have mixed signs
+nf.format({ foot: 5, inch: -11 });
 ```
 
 ### Integration with Intl Unit Protocol
