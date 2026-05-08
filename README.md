@@ -1,6 +1,6 @@
 # Intl Sequence Units
 
-This proposal specifies a mechanism for formatting sequences of measurement units (e.g., "feet and inches" or "degrees and minutes") within `Intl.NumberFormat`.
+This proposal specifies a mechanism for formatting sequences of measurement units (e.g., "feet and inches" or "meters and centimeters") within `Intl.NumberFormat`.
 
 **Stage**: 0  
 **Champion/Author**: Shane F Carr
@@ -13,8 +13,8 @@ Source: [spec.emu](https://github.com/tc39-transfer/proposal-intl-sequence-units
 ## Motivation
 
 Measurement systems frequently employ multiple units in sequence to express a single magnitude. Examples include:
-- Anthropometric height: "5 feet, 11 inches"
-- Angular measurement: "5 degrees, 30 minutes"
+
+- Person height: "5 feet, 11 inches" or "1 meter, 80 centimeters"
 - Mass: "2 pounds, 4 ounces"
 
 Current ECMAScript implementations require manual composition of multiple `Intl.NumberFormat` outputs. This approach introduces risk regarding localized separators, unit ordering, and pluralization agreement, which vary significantly across locales. This proposal addresses these requirements by providing a standardized interface for multi-unit formatting.
@@ -23,7 +23,7 @@ Original ECMA-402 issue: [https://github.com/tc39/ecma402/issues/398](https://gi
 
 ## Proposed Solution
 
-`Intl.NumberFormat` is extended to support compound unit identifiers joined by the `-and-` separator (e.g., `foot-and-inch`, `degree-and-minute`).
+`Intl.NumberFormat` is extended to support compound unit identifiers joined by the `-and-` separator (e.g., `foot-and-inch`, `meter-and-centimeter`, `pound-and-ounce`).
 
 When a sequence unit is specified, `format` and `formatToParts` accept a JavaScript object as input. Each property of the object must correspond to a sub-unit identified in the sequence.
 
@@ -41,14 +41,14 @@ nf.format({ foot: 5, inch: 11 });
 // "-5 feet, 11 inches" (Only the first unit renders the minus sign)
 nf.format({ foot: -5, inch: -11 }); 
 
-const angleNf = new Intl.NumberFormat('en-US', {
+const massNf = new Intl.NumberFormat('en-US', {
   style: 'unit',
-  unit: 'degree-and-minute-and-second',
-  unitDisplay: 'narrow'
+  unit: 'pound-and-ounce',
+  unitDisplay: 'long'
 });
 
-// "5° 30′ 12″" (Actual output is locale-dependent)
-angleNf.format({ degree: 5, minute: 30, second: 12 });
+// "2 pounds, 4 ounces" (Actual output is locale-dependent)
+massNf.format({ pound: 2, ounce: 4 });
 ```
 
 ### Technical Semantics
@@ -98,6 +98,12 @@ This proposal aligns with the [Amount](https://github.com/tc39/proposal-intl-amo
 ## Prior Art
 
 The formatting requirements for sequence units are defined in Unicode Technical Standard #35 (LDML), Section [Unit Sequences (Mixed Units)](https://unicode.org/reports/tr35/tr35-general.html#Unit_Sequences). TR35 specifies the use of localized `listPattern` data to compose these sequences, which this proposal implements for ECMAScript.
+
+## Future Directions
+
+### Additional units
+
+Some units commonly used in sequences, such as `arcminute` and `arcsecond`, are not currently sanctioned in ECMA-402. Formatting angular measurements like "5° 30′ 12″" (which would conceptually use `degree-and-arcminute-and-arcsecond`) would require a separate proposal to add `arcminute` and `arcsecond` to the list of sanctioned single unit identifiers before they can be utilized as sequence units.
 
 ## Alternatives Considered
 
