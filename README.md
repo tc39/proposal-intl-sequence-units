@@ -52,13 +52,17 @@ The formatting procedure for sequence units follows these steps:
 1. **Validation**: All components of the `-and-` delimited identifier must be sanctioned unit identifiers.
 2. **Extraction**: Values are retrieved from the input object based on the sub-unit keys.
 3. **Component Formatting**:
-    - **Intermediate Units**: Formatted using default rounding (maximum 3 fraction digits). This preserves precision for non-integer inputs without requiring the engine to perform unit conversion ("Garbage In, Garbage Out").
+    - **Intermediate Units**: Required to be integers, and formatted as integers.
     - **Terminal Unit**: Formatted according to the rounding and fraction settings configured on the `Intl.NumberFormat` instance.
 4. **Composition**: The resulting component strings are concatenated using `Intl.ListFormat` with `type: "unit"` and the specified `unitDisplay` style to ensure locale-appropriate conjunctions and spacing.
 
 ### Error Handling
 
-Inputs to `format` or `formatToParts` must contain a value for every sub-unit defined in the unit identifier. If a required property is `undefined` or missing, a `TypeError` is thrown. Additionally, all sub-units must have the same sign; mixing positive and negative values (e.g., `{ foot: 5, inch: -11 }`) will throw a `RangeError`.
+Inputs to `format` or `formatToParts` must contain a value for every sub-unit defined in the unit identifier. Properties are read in the order they appear in the unit identifier sequence. If a required property is `undefined` or missing, a `TypeError` is thrown immediately. 
+
+After all properties have been read and converted to numbers, two final validations occur:
+1. **Mixed Signs**: All sub-units must have the same sign. Mixing positive and negative values (e.g., `{ foot: 5, inch: -11 }`) throws a `RangeError`.
+2. **Intermediate Integers**: All intermediate sub-units (all but the final one) must be integers. Providing a non-integer intermediate value (e.g., `{ foot: 5.5, inch: 6 }`) throws a `RangeError`.
 
 ```javascript
 const nf = new Intl.NumberFormat('en-US', {
@@ -71,6 +75,9 @@ nf.format({ foot: 5 });
 
 // Throws RangeError: sub-units have mixed signs
 nf.format({ foot: 5, inch: -11 });
+
+// Throws RangeError: intermediate sub-unit is not an integer
+nf.format({ foot: 5.5, inch: 6 });
 ```
 
 ### Integration with Intl Unit Protocol

@@ -126,14 +126,20 @@ contributors: Shane F Carr
         1. Let _values_ be a new empty List.
         1. Let _hasNegative_ be *false*.
         1. Let _hasPositive_ be *false*.
+        1. Let _hasNonInteger_ be *false*.
+        1. Let _i_ be 0.
         1. For each String _subUnit_ of _sequence_, do
+          1. If _i_ is the length of _sequence_ - 1, let _isLast_ be *true*; else let _isLast_ be *false*.
           1. Let _subValue_ be ? Get(_value_, _subUnit_).
           1. If _subValue_ is *undefined*, throw a *TypeError* exception.
           1. Let _x_ be ? ToIntlMathematicalValue(_subValue_).
+          1. If _isLast_ is *false* and _x_ is not an integer, set _hasNonInteger_ to *true*.
           1. If _x_ &lt; 0, set _hasNegative_ to *true*.
           1. If _x_ &gt; 0, set _hasPositive_ to *true*.
           1. Append _x_ to _values_.
+          1. Set _i_ to _i_ + 1.
         1. If _hasNegative_ is *true* and _hasPositive_ is *true*, throw a *RangeError* exception.
+        1. If _hasNonInteger_ is *true*, throw a *RangeError* exception.
         1. Return _values_.
       </emu-alg>
     </emu-clause>
