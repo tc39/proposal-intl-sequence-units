@@ -2,13 +2,10 @@
 
 This proposal specifies a mechanism for formatting sequences of measurement units (e.g., "feet and inches" or "meters and centimeters") within `Intl.NumberFormat`.
 
-**Stage**: 0  
-**Champion/Author**: Shane F Carr
-
-## Spec
-
-Technical specification (ecmarkup): [ecmarkup output](https://tc39-transfer.github.io/proposal-intl-sequence-units/)  
-Source: [spec.emu](https://github.com/tc39-transfer/proposal-intl-sequence-units/blob/HEAD/spec.emu)
+- Stage: 0
+- Champion: @sffc
+- [Spec](https://tc39.es/proposal-intl-sequence-units/)
+- [Original ECMA-402 issue](https://github.com/tc39/ecma402/issues/398)
 
 ## Motivation
 
@@ -18,8 +15,6 @@ Measurement systems frequently employ multiple units in sequence to express a si
 - Mass: "2 pounds, 4 ounces"
 
 Current ECMAScript implementations require manual composition of multiple `Intl.NumberFormat` outputs. This approach introduces risk regarding localized separators, unit ordering, and pluralization agreement, which vary significantly across locales. This proposal addresses these requirements by providing a standardized interface for multi-unit formatting.
-
-Original ECMA-402 issue: [https://github.com/tc39/ecma402/issues/398](https://github.com/tc39/ecma402/issues/398)
 
 ## Proposed Solution
 
