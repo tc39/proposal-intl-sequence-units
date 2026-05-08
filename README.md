@@ -9,7 +9,7 @@ This proposal specifies a mechanism for formatting sequences of measurement unit
 
 Presentations:
 
-- 114th TC39: [Slides](https://tc39.es/proposal-intl-sequence-units/slides/stage_1_or_2.md)
+- 114th TC39: [Slides](https://tc39.es/proposal-intl-sequence-units/slides/stage_1_or_2.html)
 
 ## Motivation
 
