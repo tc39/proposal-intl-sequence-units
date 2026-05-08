@@ -7,6 +7,10 @@ This proposal specifies a mechanism for formatting sequences of measurement unit
 - [Spec](https://tc39.es/proposal-intl-sequence-units/)
 - [Original ECMA-402 issue](https://github.com/tc39/ecma402/issues/398)
 
+Presentations:
+
+- 114th TC39: [Slides](https://tc39.es/proposal-intl-sequence-units/slides/stage_1_or_2.md)
+
 ## Motivation
 
 Measurement systems frequently employ multiple units in sequence to express a single magnitude. Examples include:
