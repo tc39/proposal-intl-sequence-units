@@ -37,9 +37,13 @@ contributors: Shane F Carr
           1. Return *true*.
         1. <ins>Let _sequence_ be StringSplitToList(_unitIdentifier_, *"-and-"*).</ins>
         1. <ins>If the length of _sequence_ &gt; 1, then</ins>
-          1. <ins>For each String _subUnit_ of _sequence_, do</ins>
-            1. <ins>If IsSanctionedSingleUnitIdentifier(_subUnit_) is *false*, return *false*.</ins>
-          1. <ins>Return *true*.</ins>
+          1. <ins>For each row _row_ of <emu-xref href="#table-sanctioned-sequence-unit-groups"></emu-xref>, do</ins>
+            1. <ins>Let _group_ be the list of simple unit identifiers listed in the Sequence column of _row_.</ins>
+            1. <ins>If _group_ contains _sequence_[0], then</ins>
+              1. <ins>If any of the elements of _sequence_ are not in _group_, return *false*.</ins>
+              1. <ins>If the elements of _sequence_ are not in the same order as they are in _group_, return *false*.</ins>
+              1. <ins>Return *true*.</ins>
+          1. <ins>Return *false*.</ins>
         1. <del>Let _i_ be StringIndexOf(_unitIdentifier_, *"-per-"*, 0).</del>
         1. <del>If _i_ is ~not-found~ or StringIndexOf(_unitIdentifier_, *"-per-"*, _i_ + 1) is not ~not-found~, then</del>
           1. <del>Return *false*.</del>
@@ -52,6 +56,27 @@ contributors: Shane F Carr
           1. Return *true*.
         1. Return *false*.
       </emu-alg>
+
+      <ins class="block">
+      <emu-table id="table-sanctioned-sequence-unit-groups">
+        <emu-caption>Sanctioned Sequence Unit Groups</emu-caption>
+        <table class="real-table">
+          <thead>
+            <tr>
+              <th>Sequence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>« *"mile"*, *"yard"*, *"foot"*, *"inch"* »</td></tr>
+            <tr><td>« *"kilometer"*, *"meter"*, *"centimeter"*, *"millimeter"* »</td></tr>
+            <tr><td>« *"stone"*, *"pound"*, *"ounce"* »</td></tr>
+            <tr><td>« *"kilogram"*, *"gram"* »</td></tr>
+            <tr><td>« *"gallon"*, *"fluid-ounce"* »</td></tr>
+            <tr><td>« *"liter"*, *"milliliter"* »</td></tr>
+          </tbody>
+        </table>
+      </emu-table>
+      </ins>
     </emu-clause>
   </emu-clause>
 </emu-clause>

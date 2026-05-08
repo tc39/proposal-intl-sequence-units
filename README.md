@@ -49,7 +49,7 @@ massNf.format({ pound: 2, ounce: 4 });
 ### Technical Semantics
 
 The formatting procedure for sequence units follows these steps:
-1. **Validation**: All components of the `-and-` delimited identifier must be sanctioned unit identifiers.
+1. **Validation**: The sequence must be a valid combination of sanctioned units measuring the same quantity and arranged in descending order of magnitude. The sanctioned sequences are explicitly listed in the specification (e.g., `foot-and-inch`, `kilogram-and-gram`). Note that time units are excluded from sequence units, as they are managed by `Intl.DurationFormat`.
 2. **Extraction**: Values are retrieved from the input object based on the sub-unit keys.
 3. **Component Formatting**:
     - **Intermediate Units**: Required to be integers, and formatted as integers.
@@ -65,6 +65,9 @@ After all properties have been read and converted to numbers, two final validati
 2. **Intermediate Integers**: All intermediate sub-units (all but the final one) must be integers. Providing a non-integer intermediate value (e.g., `{ foot: 5.5, inch: 6 }`) throws a `RangeError`.
 
 ```javascript
+// Throws RangeError: invalid unit sequence (not in a sanctioned group or order)
+new Intl.NumberFormat('en-US', { style: 'unit', unit: 'meter-and-foot' });
+
 const nf = new Intl.NumberFormat('en-US', {
   style: 'unit',
   unit: 'foot-and-inch',
