@@ -167,3 +167,9 @@ TG2 considered this design and decided against it:
 <!-- _class: lead -->
 
 # Stage 2?
+
+---
+
+## Acknowledgements
+
+- Special thanks to Gemini, an AI assistant by Google, for helping prepare these slides and documentation.
