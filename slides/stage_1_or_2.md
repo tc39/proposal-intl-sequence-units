@@ -36,6 +36,26 @@ Measurement systems frequently employ multiple units in sequence to express a si
 
 ---
 
+## Current Workaround
+
+To format "5 feet, 11 inches" today:
+
+```javascript
+const feetNf = new Intl.NumberFormat("en", { style: "unit", unit: "foot" });
+const inchNf = new Intl.NumberFormat("en", { style: "unit", unit: "inch" });
+const lf = new Intl.ListFormat("en", { type: "unit" });
+
+lf.format([feetNf.format(5), inchNf.format(11)]);
+// "5 feet, 11 inches"
+```
+
+**Not ergonomic and prone to user error:**
+- Multiple formatter instances needed.
+- Manual management of unit order.
+- Sign handling is complex for negative values.
+
+---
+
 <!-- _class: lead -->
 
 # Stage 1?

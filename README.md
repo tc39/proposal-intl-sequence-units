@@ -20,6 +20,22 @@ Measurement systems frequently employ multiple units in sequence to express a si
 
 Current ECMAScript implementations require manual composition of multiple `Intl.NumberFormat` outputs. This approach introduces risk regarding localized separators, unit ordering, and pluralization agreement, which vary significantly across locales. This proposal addresses these requirements by providing a standardized interface for multi-unit formatting.
 
+For example, to format "5 feet, 11 inches" today, a developer must write:
+
+```javascript
+const feetNf = new Intl.NumberFormat("en", { style: "unit", unit: "foot" });
+const inchNf = new Intl.NumberFormat("en", { style: "unit", unit: "inch" });
+const lf = new Intl.ListFormat("en", { type: "unit" });
+
+lf.format([feetNf.format(5), inchNf.format(11)]);
+// "5 feet, 11 inches"
+```
+
+While this is possible, it is not ergonomic and is prone to user error:
+- It requires creating and managing multiple `Intl.NumberFormat` instances.
+- Developers must manually ensure the correct unit ordering.
+- It does not automatically handle sign display across the sequence (e.g., only showing the minus sign on the first unit).
+
 ## Proposed Solution
 
 `Intl.NumberFormat` is extended to support compound unit identifiers joined by the `-and-` separator (e.g., `foot-and-inch`, `meter-and-centimeter`, `pound-and-ounce`).
