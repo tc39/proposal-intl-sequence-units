@@ -149,6 +149,7 @@ For better error handling and more future flexibility, we are restricting the se
 - `"kilogram"`, `"gram"`
 - `"gallon"`, `"fluid-ounce"`
 - `"liter"`, `"milliliter"`
+- **Open Question**: Should we support non-integer multiples like `meter-and-inch`? (Issue #9) CLDR does not forbid these.
 
 ---
 
