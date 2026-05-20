@@ -86,6 +86,8 @@ nf.format({ foot: 5, inch: 11 });
 
 UTS #35 specifies the use of localized `listPattern` data to correctly compose mixed unit sequences in different languages. This proposal implements those TR35 guidelines natively for ECMAScript.
 
+- **Upstream Alignment**: CLDR is considering adopting some of our design choices (see [CLDR-19475](https://unicode-org.atlassian.net/browse/CLDR-19475)).
+
 ---
 
 ## Negative Numbers
@@ -153,15 +155,7 @@ For better error handling and more future flexibility, we are restricting the se
 
 ---
 
-## Upstream Alignment: CLDR
 
-- CLDR is considering adopting some of our restrictions upstream (see [CLDR-19475](https://unicode-org.atlassian.net/browse/CLDR-19475)).
-- Specifically, they are looking at:
-  - Restricting sequences to a **sanctioned list** of valid combinations (avoiding arbitrary pairs like `meter-and-foot`).
-  - Enforcing **well-formedness constraints** such as strictly descending order of magnitude.
-- This alignment helps ensure consistency between ECMAScript and underlying locale data standards.
-
----
 
 ## Alternative: Scalar Input with Automatic Conversion
 
