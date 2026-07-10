@@ -21,33 +21,40 @@ _color: #ffffff
 
 Measurement systems frequently employ multiple units in sequence to express a single magnitude.
 
-### Existing Sanctioned Sequences (Table 1)
-- **Length:** `foot-and-inch`, `meter-and-centimeter`
-- **Mass:** `pound-and-ounce`, `kilogram-and-gram`
+**Example sanctioned units:**
 
-### What about Time & Angles?
-- **Time:** `hour-and-minute`, `minute-and-second`, `day-and-hour`
-- **Angles:** `degree-and-arcminute`, `arcminute-and-arcsecond`
+- Length: `foot-and-inch`, `meter-and-centimeter`
+- Mass: `pound-and-ounce`, `kilogram-and-gram`
 
-Currently, time units are **excluded** from the sanctioned sequence units table in `proposal-intl-sequence-units`.
+Duration units are currently excluded from the list of sanctioned units:
+
+- Time: `hour-and-minute`, `minute-and-second`, `day-and-hour`
+
+*In this presentation I will use "time units" and "duration units" interchangeably*
 
 ---
 
-## The Architectural Dilemma
+## Time Units in Amount vs Temporal.Duration
 
-When a developer works with time sequences (like hours and minutes):
+Developers can already use Temporal.Duration and Intl.DurationFormat:
 
-1. Should they be able to format them using general sequence formatting in **`Intl.NumberFormat`** and **`Amount`**?
-   ```javascript
-   const nf = new Intl.NumberFormat("en", { style: "unit", unit: "hour-and-minute" });
-   nf.format({ hour: 2, minute: 30 }); // Should this work or throw?
-   ```
+```javascript
+const formatter = new Intl.DurationFormat("en", { style: "long" });
+formatter.format({ hours: 2, minutes: 30 });
 
-2. Or should the platform strictly direct them to **`Intl.DurationFormat`** and **`Temporal.Duration`**?
-   ```javascript
-   const df = new Intl.DurationFormat("en", { style: "long" });
-   df.format(Temporal.Duration.from({ hours: 2, minutes: 30 }));
-   ```
+const duration = Temporal.Duration.from({ hours: 2, minutes: 30 });
+formatter.format(duration);
+```
+
+What should happen if they try to use Amount and/or Intl Sequence Units?
+
+```javascript
+const formatter = new Intl.NumberFormat("en", { style: "unit", unit: "hour-and-minute" });
+formatter.format({ hour: 2, minute: 30 });
+
+const amount = new Amount({ hour: 2, minute: 30 }, "hour-and-minute");
+formatter.format(amount);
+```
 
 ---
 
@@ -55,13 +62,11 @@ When a developer works with time sequences (like hours and minutes):
 
 In recent TG2 discussions (June & July 2026), two distinct architectural viewpoints emerged regarding proposal scoping and platform consistency:
 
-- **Position 1: Exclude Time Units (Domain Dedication)**
-  *Advocated by Shane F. Carr (@sffc)*
+- **Position 1: Exclude Time Units**
   Focus on guiding developers to purpose-built, domain-specific APIs.
 
-- **Position 2: Include Time Units (Data & API Consistency)**
-  *Advocated by Richard Gibson (@gibson042) & Eemeli Aro (@eemeli)*
-  Focus on alignment with CLDR data and interoperability with `Amount`.
+- **Position 2: Include Time Units**
+  Focus on alignment with CLDR data and ease of use with `Amount`.
 
 ---
 
@@ -71,45 +76,68 @@ In recent TG2 discussions (June & July 2026), two distinct architectural viewpoi
 
 ---
 
-## Position 1: Why Exclude Time Units? (1/2)
+## Position 1: Why Exclude Time Units? (1/3)
 
-### 1. Dedicated Domain-Specific API Already Exists
-- TC39 invested significant effort designing **`Intl.DurationFormat`** and **`Temporal.Duration`** specifically for time and duration formatting.
-- `DurationFormat` provides domain-essential features: balancing, normalization, and digital formatting styles (e.g., `2:30:00`) that general sequence formatting lacks.
-- Providing a secondary, less-capable way to format durations in `Intl.NumberFormat` creates developer confusion and API redundancy.
+### 1. Duration units have footguns
 
-### 2. Hidden Complexities & Pitfalls of Time
-- Time units involve inherent domain hazards: combining `day-and-hour` crosses timezone / DST boundaries; `month-and-day` depends on calendar month lengths.
-- Even if simple pairs like `minute-and-second` seem harmless, allowing time units in general sequence formatting invites subtle bugs.
+- `day-and-hour` crosses timezone / DST boundaries
+- `month-and-day` depends on calendar month lengths
+
+### 2. Durations are complicated to format
+
+- Digital formatting styles (`2:30:00`)
+- Flexible handling of zero-valued fields
+
+Note: the domain-specific functionality impacts both large (month, day) and small (minute, second) duration units
 
 ---
 
-## Position 1: Why Exclude Time Units? (2/2)
+## Position 1: Why Exclude Time Units? (2/3)
 
-### 3. Clean Alignment Between Data & Formatter APIs
-- **`Intl.DurationFormat`** has a 1-to-1 correspondence with **`Temporal.Duration`**.
-- **`Intl.NumberFormat`** should align cleanly with **`Amount`**.
-- Creating time-based `Amount` sequences that duplicate `Temporal.Duration` functionality blurs architectural boundaries.
+### 3. The Web Platform should promote the right way to do things
 
-### 4. Curated Web Platform Capabilities vs. Raw CLDR Data
-- While CLDR (`units.xml`) includes time unit combinations, ECMA-402 is not obligated to blindly expose every combination in CLDR.
-- The web platform should curate its surface area to guide developers toward the correct tools (*"We don't want to add bad time into the web platform"*).
+- We just spent 9 years designing Temporal
+- We shouldn't add a worse way to represent and format time units
+
+### 4. Adding duration unit formatting to Intl.NF will make developers expect formatting options there
+
+- Six years ago, we explicitly decided to make a separate Intl.DurationFormat instead of overloading Intl.NumberFormat with duration formatting options and functionality
+- If we add duration unit formatting only now, then the lack of duration-specific features in Intl.NumberFormat will be a pain point for years to come
+
+---
+
+## Position 1: Why Exclude Time Units? (3/3)
+
+### 5. Amount is already more general than Intl
+
+- Amount will allow arbitrary units, like `jupiter-radius`
+- Intl will throw when formatting these non-sanctioned units
+- So even if Amount supports time units, Intl.NF need not
+
+### 6. Intl is already a subset of CLDR
+
+- CLDR has over 200 units; Intl has 45, each independently motivated
+- Intl is already sanctioning a narrow subset of sequence units
+- ECMA need not add time sequence units just because they are in CLDR
 
 ---
 
 <!-- _class: lead -->
 # Position 2: Include Time Units
-## Prioritize Data & API Consistency
+## Prioritize Flexibility and Consistency with CLDR
 
 ---
 
 ## Position 2: Why Include Time Units? (1/2)
 
 ### 1. Alignment with CLDR and `Amount` Conversion
-- Sequence units and unit conversions in `Amount` are defined in terms of CLDR data and usage preferences (which include `minute-and-second` for media duration and person age).
-- Because `Amount.prototype.convertTo` can produce `minute-and-second` objects, it is arbitrary and ergonomic friction if those valid `Amount` objects throw errors when passed to `Intl.NumberFormat`.
+
+- Sequence units and unit conversions in `Amount` are defined in terms of CLDR data
+- There are usage preferences like "duration-media" that use time units
+- If `Amount.prototype.convertTo` can produce `minute-and-second` objects, it is arbitrary and ergonomic friction if those valid `Amount` objects throw errors when passed to `Intl.NumberFormat`.
 
 ### 2. Flexibility / Multiple Valid Workflows
+
 - While `DurationFormat` is ideal for dedicated duration handling, it should not be the *only* permitted approach enforced by artificial restrictions.
 - When doing unit conversions within a category (e.g., via an `Amount` conversion form), developers should be able to format their results directly without converting back and forth to `Temporal.Duration`.
 
@@ -118,44 +146,27 @@ In recent TG2 discussions (June & July 2026), two distinct architectural viewpoi
 ## Position 2: Why Include Time Units? (2/2)
 
 ### 3. Not a Formatting Hazard
+
 - Sequence formatting does not perform calendar or time math; it simply formats quantities together (like feet-and-inches or pounds-and-ounces).
 - Formatting a valid sequence like `hour-and-minute` is fundamentally just list formatting with unit styles, which poses no inherent architectural danger.
 
-### 4. Dedicated Rendering Needs
-- Certain unit sequences require specialized syntax or localization symbols beyond simple list formatting (e.g., degree-arcminute-arcsecond or minute-second notation: `° ' "`).
-- Sequence formatting provides the necessary localization machinery for these representations.
+---
+
+<!-- _class: lead -->
+# Next Steps
 
 ---
 
-## Summary Comparison
+## Open Questions
 
-| Aspect | Position 1: Exclude Time Units | Position 2: Include Time Units |
-| :--- | :--- | :--- |
-| **Primary Philosophy** | Guide developers to domain-dedicated tools (`DurationFormat`). | Maintain consistency across CLDR data, `Amount`, and formatters. |
-| **View on Duplication** | Redundant with `DurationFormat` / `Temporal.Duration`. | Legitimate alternative workflow for general measurement handling. |
-| **Handling of Hazards** | Prevent bugs by blocking complex units (TZ / DST / calendar shifts). | Sequence formatting is just presentation; math hazards belong elsewhere. |
-| **CLDR Alignment** | ECMA-402 should curate a safe subset of CLDR. | If CLDR & `Amount` support it, `Intl.NumberFormat` should format it. |
+**Intl Sequence Units:**
 
----
+1. Should Intl.NumberFormat support formatting sequence time units?
 
-## Discussion & Questions for TG1
+**Amount:**
 
-1. **Platform Guidance vs. Developer Flexibility:**
-   Should TC39 actively restrict general-purpose APIs to force adoption of domain-specific APIs (e.g., blocking time units in `Intl.NumberFormat` to favor `Intl.DurationFormat`)?
+1. Should Amount support single time units?
+2. Should Amount support sequence time units?
+3. Should Amount support time unit conversions?
 
-2. **Interoperability between `Amount` and `Intl.NumberFormat`:**
-   If `Amount` unit conversion supports CLDR usage preferences (like `minute-and-second`), should `Intl.NumberFormat` be guaranteed to format any valid `Amount` sequence?
-
-3. **Subsetting Strategy:**
-   What is the appropriate level of strictness for Table 1 (Sanctioned Sequence Units) as `proposal-intl-sequence-units` progresses toward Stage 3?
-
----
-
-<!-- 
-_class: lead 
-_backgroundColor: #2c3e50
-_color: #ffffff
--->
-
-# Thank You!
-## Discussion / Q&A
+*Thank you! Discussion*
