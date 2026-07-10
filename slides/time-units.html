@@ -79,7 +79,7 @@ Focus on alignment with CLDR data and ease of use with <code>Amount</code>.</p>
 <li>Digital formatting styles (<code>2:30:00</code>)</li>
 <li>Flexible handling of zero-valued fields</li>
 </ul>
-<p>Note: the domain-specific functionality impacts both large (month, day) and small (minute, second) duration units</p>
+<p><em>Note: domain-specific functionality impacts both large (month, day) and small (minute, second) duration units.</em></p>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="7" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
@@ -98,7 +98,7 @@ Focus on alignment with CLDR data and ease of use with <code>Amount</code>.</p>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="8" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
 <h2 id="position-1-why-exclude-time-units-33">Position 1: Why Exclude Time Units? (3/3)</h2>
-<h3 id="5-amount-is-already-more-general-than-intl">5. Amount is already more general than Intl</h3>
+<h3 id="5-amount-is-already-more-general-than-intlnumberformat">5. Amount is already more general than Intl.NumberFormat</h3>
 <ul>
 <li>Amount will allow arbitrary units, like <code>jupiter-radius</code></li>
 <li>Intl will throw when formatting these non-sanctioned units</li>
@@ -121,8 +121,8 @@ Focus on alignment with CLDR data and ease of use with <code>Amount</code>.</p>
 <h2 id="position-2-why-include-time-units-12">Position 2: Why Include Time Units? (1/2)</h2>
 <h3 id="1-alignment-with-cldr-and-amount-conversion">1. Alignment with CLDR and <code>Amount</code> Conversion</h3>
 <ul>
-<li>Sequence units and unit conversions in <code>Amount</code> are defined in terms of CLDR data</li>
-<li>There are usage preferences like &quot;duration-media&quot; that use time units</li>
+<li>Sequence units and unit conversions in <code>Amount</code> are defined in terms of CLDR data.</li>
+<li>There are usage preferences like &quot;duration-media&quot; that use time units.</li>
 <li>If <code>Amount.prototype.convertTo</code> can produce <code>minute-and-second</code> objects, it is arbitrary and ergonomic friction if those valid <code>Amount</code> objects throw errors when passed to <code>Intl.NumberFormat</code>.</li>
 </ul>
 <h3 id="2-flexibility--multiple-valid-workflows">2. Flexibility / Multiple Valid Workflows</h3>
@@ -153,9 +153,9 @@ Focus on alignment with CLDR data and ease of use with <code>Amount</code>.</p>
 </ol>
 <p><strong>Amount:</strong></p>
 <ol>
-<li>Should Amount support single time units?</li>
-<li>Should Amount support sequence time units?</li>
-<li>Should Amount support time unit conversions?</li>
+<li>Should Amount support single time units? <em>(e.g., <code>new Amount(5, &quot;hour&quot;)</code>)</em></li>
+<li>Should Amount support sequence time units? <em>(e.g., <code>new Amount({ hour: 2, minute: 30 }, &quot;hour-and-minute&quot;)</code>)</em></li>
+<li>Should Amount support time unit conversions? <em>(e.g., converting seconds to <code>hour-and-minute</code> via <code>.convertTo()</code>)</em></li>
 </ol>
 <p><em>Thank you! Discussion</em></p>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
