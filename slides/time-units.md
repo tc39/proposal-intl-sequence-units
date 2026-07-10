@@ -88,7 +88,7 @@ In recent TG2 discussions (June & July 2026), two distinct architectural viewpoi
 - Digital formatting styles (`2:30:00`)
 - Flexible handling of zero-valued fields
 
-Note: the domain-specific functionality impacts both large (month, day) and small (minute, second) duration units
+*Note: domain-specific functionality impacts both large (month, day) and small (minute, second) duration units.*
 
 ---
 
@@ -108,7 +108,7 @@ Note: the domain-specific functionality impacts both large (month, day) and smal
 
 ## Position 1: Why Exclude Time Units? (3/3)
 
-### 5. Amount is already more general than Intl
+### 5. Amount is already more general than Intl.NumberFormat
 
 - Amount will allow arbitrary units, like `jupiter-radius`
 - Intl will throw when formatting these non-sanctioned units
@@ -132,8 +132,8 @@ Note: the domain-specific functionality impacts both large (month, day) and smal
 
 ### 1. Alignment with CLDR and `Amount` Conversion
 
-- Sequence units and unit conversions in `Amount` are defined in terms of CLDR data
-- There are usage preferences like "duration-media" that use time units
+- Sequence units and unit conversions in `Amount` are defined in terms of CLDR data.
+- There are usage preferences like "duration-media" that use time units.
 - If `Amount.prototype.convertTo` can produce `minute-and-second` objects, it is arbitrary and ergonomic friction if those valid `Amount` objects throw errors when passed to `Intl.NumberFormat`.
 
 ### 2. Flexibility / Multiple Valid Workflows
@@ -165,8 +165,8 @@ Note: the domain-specific functionality impacts both large (month, day) and smal
 
 **Amount:**
 
-1. Should Amount support single time units?
-2. Should Amount support sequence time units?
-3. Should Amount support time unit conversions?
+1. Should Amount support single time units? *(e.g., `new Amount(5, "hour")`)*
+2. Should Amount support sequence time units? *(e.g., `new Amount({ hour: 2, minute: 30 }, "hour-and-minute")`)*
+3. Should Amount support time unit conversions? *(e.g., converting seconds to `hour-and-minute` via `.convertTo()`)*
 
 *Thank you! Discussion*
