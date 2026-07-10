@@ -88,7 +88,7 @@ In recent TG2 discussions (June & July 2026), two distinct architectural viewpoi
 - Digital formatting styles (`2:30:00`)
 - Flexible handling of zero-valued fields
 
-*Note: domain-specific functionality impacts both large (month, day) and small (minute, second) duration units.*
+> **Note:** Domain-specific functionality impacts both large (month, day) and small (minute, second) duration units.
 
 ---
 
@@ -132,18 +132,18 @@ In recent TG2 discussions (June & July 2026), two distinct architectural viewpoi
 
 ### 1. Alignment with CLDR and `Amount` Conversion
 
-- Sequence units and unit conversions in `Amount` are defined in terms of CLDR data.
+- Sequence units and unit conversions in `Amount` are defined in terms of CLDR.
 - There are usage preferences like "duration-media" that use time units.
 - If `Amount.prototype.convertTo` can produce `minute-and-second` objects, it is arbitrary and ergonomic friction if those valid `Amount` objects throw errors when passed to `Intl.NumberFormat`.
+
+---
+
+## Position 2: Why Include Time Units? (2/2)
 
 ### 2. Flexibility / Multiple Valid Workflows
 
 - While `DurationFormat` is ideal for dedicated duration handling, it should not be the *only* permitted approach enforced by artificial restrictions.
 - When doing unit conversions within a category (e.g., via an `Amount` conversion form), developers should be able to format their results directly without converting back and forth to `Temporal.Duration`.
-
----
-
-## Position 2: Why Include Time Units? (2/2)
 
 ### 3. Not a Formatting Hazard
 
@@ -152,21 +152,26 @@ In recent TG2 discussions (June & July 2026), two distinct architectural viewpoi
 
 ---
 
-<!-- _class: lead -->
+<!-- 
+_class: lead 
+_backgroundColor: #2c3e50
+_color: #ffffff
+-->
 # Next Steps
 
 ---
 
-## Open Questions
+## Open Questions for Discussion
 
 **Intl Sequence Units:**
 
-1. Should Intl.NumberFormat support formatting sequence time units?
+1. Should Intl.NumberFormat include time units as sanctioned sequence units?
 
 **Amount:**
 
-1. Should Amount support single time units? *(e.g., `new Amount(5, "hour")`)*
-2. Should Amount support sequence time units? *(e.g., `new Amount({ hour: 2, minute: 30 }, "hour-and-minute")`)*
-3. Should Amount support time unit conversions? *(e.g., converting seconds to `hour-and-minute` via `.convertTo()`)*
-
-*Thank you! Discussion*
+1. Should Amount support single time units?
+    - Example: `new Amount(5, "hour")`
+2. Should Amount support sequence time units?
+    - Example: `new Amount({ hour: 2, minute: 30 }, "hour-and-minute")`
+3. Should Amount support time unit conversions?
+    - Example: `new Amount(5.5, "hour").convertTo("hour-and-minute")`
