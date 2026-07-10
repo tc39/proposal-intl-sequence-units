@@ -125,18 +125,21 @@ Focus on alignment with CLDR data and ease of use with <code>Amount</code>.</p>
 <ul>
 <li>Sequence units and unit conversions in <code>Amount</code> are defined in terms of CLDR.</li>
 <li>There are usage preferences like &quot;duration-media&quot; that use time units.</li>
+</ul>
+<h3 id="2-ergonomics">2. Ergonomics</h3>
+<ul>
 <li>If <code>Amount.prototype.convertTo</code> can produce <code>minute-and-second</code> objects, it is arbitrary and ergonomic friction if those valid <code>Amount</code> objects throw errors when passed to <code>Intl.NumberFormat</code>.</li>
 </ul>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="11" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="11" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
 <h2 id="position-2-why-include-time-units-22">Position 2: Why Include Time Units? (2/2)</h2>
-<h3 id="2-flexibility--multiple-valid-workflows">2. Flexibility / Multiple Valid Workflows</h3>
+<h3 id="3-flexibility">3. Flexibility</h3>
 <ul>
+<li>Developers supporting arbitrary unit conversion (distance, mass, energy, etc.) should not need to write separate code for handling time units.</li>
 <li>While <code>DurationFormat</code> is ideal for dedicated duration handling, it should not be the <em>only</em> permitted approach enforced by artificial restrictions.</li>
-<li>When doing unit conversions within a category (e.g., via an <code>Amount</code> conversion form), developers should be able to format their results directly without converting back and forth to <code>Temporal.Duration</code>.</li>
 </ul>
-<h3 id="3-not-a-formatting-hazard">3. Not a Formatting Hazard</h3>
+<h3 id="4-not-a-formatting-hazard">4. Not a Formatting Hazard</h3>
 <ul>
 <li>Sequence formatting does not perform calendar or time math; it simply formats quantities together (like feet-and-inches or pounds-and-ounces).</li>
 <li>Formatting a valid sequence like <code>hour-and-minute</code> is fundamentally just list formatting with unit styles, which poses no inherent architectural danger.</li>
