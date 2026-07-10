@@ -134,18 +134,21 @@ In recent TG2 discussions (June & July 2026), two distinct architectural viewpoi
 
 - Sequence units and unit conversions in `Amount` are defined in terms of CLDR.
 - There are usage preferences like "duration-media" that use time units.
+
+### 2. Ergonomics
+
 - If `Amount.prototype.convertTo` can produce `minute-and-second` objects, it is arbitrary and ergonomic friction if those valid `Amount` objects throw errors when passed to `Intl.NumberFormat`.
 
 ---
 
 ## Position 2: Why Include Time Units? (2/2)
 
-### 2. Flexibility / Multiple Valid Workflows
+### 3. Flexibility
 
+- Developers supporting arbitrary unit conversion (distance, mass, energy, etc.) should not need to write separate code for handling time units.
 - While `DurationFormat` is ideal for dedicated duration handling, it should not be the *only* permitted approach enforced by artificial restrictions.
-- When doing unit conversions within a category (e.g., via an `Amount` conversion form), developers should be able to format their results directly without converting back and forth to `Temporal.Duration`.
 
-### 3. Not a Formatting Hazard
+### 4. Not a Formatting Hazard
 
 - Sequence formatting does not perform calendar or time math; it simply formats quantities together (like feet-and-inches or pounds-and-ounces).
 - Formatting a valid sequence like `hour-and-minute` is fundamentally just list formatting with unit styles, which poses no inherent architectural danger.
