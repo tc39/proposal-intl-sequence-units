@@ -17,36 +17,34 @@
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="2" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="2" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
 <h2 id="background-what-are-sequence-units">Background: What are Sequence Units?</h2>
 <p>Measurement systems frequently employ multiple units in sequence to express a single magnitude.</p>
-<h3 id="existing-sanctioned-sequences-table-1">Existing Sanctioned Sequences (Table 1)</h3>
+<p><strong>Example sanctioned units:</strong></p>
 <ul>
-<li><strong>Length:</strong> <code>foot-and-inch</code>, <code>meter-and-centimeter</code></li>
-<li><strong>Mass:</strong> <code>pound-and-ounce</code>, <code>kilogram-and-gram</code></li>
+<li>Length: <code>foot-and-inch</code>, <code>meter-and-centimeter</code></li>
+<li>Mass: <code>pound-and-ounce</code>, <code>kilogram-and-gram</code></li>
 </ul>
-<h3 id="what-about-time--angles">What about Time &amp; Angles?</h3>
+<p>Duration units are currently excluded from the list of sanctioned units:</p>
 <ul>
-<li><strong>Time:</strong> <code>hour-and-minute</code>, <code>minute-and-second</code>, <code>day-and-hour</code></li>
-<li><strong>Angles:</strong> <code>degree-and-arcminute</code>, <code>arcminute-and-arcsecond</code></li>
+<li>Time: <code>hour-and-minute</code>, <code>minute-and-second</code>, <code>day-and-hour</code></li>
 </ul>
-<p>Currently, time units are <strong>excluded</strong> from the sanctioned sequence units table in <code>proposal-intl-sequence-units</code>.</p>
+<p><em>In this presentation I will use &quot;time units&quot; and &quot;duration units&quot; interchangeably</em></p>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="3" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="3" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
-<h2 id="the-architectural-dilemma">The Architectural Dilemma</h2>
-<p>When a developer works with time sequences (like hours and minutes):</p>
-<ol>
-<li>
-<p>Should they be able to format them using general sequence formatting in <strong><code>Intl.NumberFormat</code></strong> and <strong><code>Amount</code></strong>?</p>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-keyword">const</span> nf = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intl</span>.<span class="hljs-title class_">NumberFormat</span>(<span class="hljs-string">&quot;en&quot;</span>, { <span class="hljs-attr">style</span>: <span class="hljs-string">&quot;unit&quot;</span>, <span class="hljs-attr">unit</span>: <span class="hljs-string">&quot;hour-and-minute&quot;</span> });
-nf.<span class="hljs-title function_">format</span>({ <span class="hljs-attr">hour</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">minute</span>: <span class="hljs-number">30</span> }); <span class="hljs-comment">// Should this work or throw?</span>
+<h2 id="time-units-in-amount-vs-temporalduration">Time Units in Amount vs Temporal.Duration</h2>
+<p>Developers can already use Temporal.Duration and Intl.DurationFormat:</p>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-keyword">const</span> formatter = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intl</span>.<span class="hljs-title class_">DurationFormat</span>(<span class="hljs-string">&quot;en&quot;</span>, { <span class="hljs-attr">style</span>: <span class="hljs-string">&quot;long&quot;</span> });
+formatter.<span class="hljs-title function_">format</span>({ <span class="hljs-attr">hours</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">minutes</span>: <span class="hljs-number">30</span> });
+
+<span class="hljs-keyword">const</span> duration = <span class="hljs-title class_">Temporal</span>.<span class="hljs-property">Duration</span>.<span class="hljs-title function_">from</span>({ <span class="hljs-attr">hours</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">minutes</span>: <span class="hljs-number">30</span> });
+formatter.<span class="hljs-title function_">format</span>(duration);
 </code></pre>
-</li>
-<li>
-<p>Or should the platform strictly direct them to <strong><code>Intl.DurationFormat</code></strong> and <strong><code>Temporal.Duration</code></strong>?</p>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-keyword">const</span> df = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intl</span>.<span class="hljs-title class_">DurationFormat</span>(<span class="hljs-string">&quot;en&quot;</span>, { <span class="hljs-attr">style</span>: <span class="hljs-string">&quot;long&quot;</span> });
-df.<span class="hljs-title function_">format</span>(<span class="hljs-title class_">Temporal</span>.<span class="hljs-property">Duration</span>.<span class="hljs-title function_">from</span>({ <span class="hljs-attr">hours</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">minutes</span>: <span class="hljs-number">30</span> }));
+<p>What should happen if they try to use Amount and/or Intl Sequence Units?</p>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-keyword">const</span> formatter = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intl</span>.<span class="hljs-title class_">NumberFormat</span>(<span class="hljs-string">&quot;en&quot;</span>, { <span class="hljs-attr">style</span>: <span class="hljs-string">&quot;unit&quot;</span>, <span class="hljs-attr">unit</span>: <span class="hljs-string">&quot;hour-and-minute&quot;</span> });
+formatter.<span class="hljs-title function_">format</span>({ <span class="hljs-attr">hour</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">minute</span>: <span class="hljs-number">30</span> });
+
+<span class="hljs-keyword">const</span> amount = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Amount</span>({ <span class="hljs-attr">hour</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">minute</span>: <span class="hljs-number">30</span> }, <span class="hljs-string">&quot;hour-and-minute&quot;</span>);
+formatter.<span class="hljs-title function_">format</span>(amount);
 </code></pre>
-</li>
-</ol>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="4" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="4" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
@@ -54,14 +52,12 @@ df.<span class="hljs-title function_">format</span>(<span class="hljs-title clas
 <p>In recent TG2 discussions (June &amp; July 2026), two distinct architectural viewpoints emerged regarding proposal scoping and platform consistency:</p>
 <ul>
 <li>
-<p><strong>Position 1: Exclude Time Units (Domain Dedication)</strong><br />
-<em>Advocated by Shane F. Carr (@sffc)</em><br />
+<p><strong>Position 1: Exclude Time Units</strong><br />
 Focus on guiding developers to purpose-built, domain-specific APIs.</p>
 </li>
 <li>
-<p><strong>Position 2: Include Time Units (Data &amp; API Consistency)</strong><br />
-<em>Advocated by Richard Gibson (@gibson042) &amp; Eemeli Aro (@eemeli)</em><br />
-Focus on alignment with CLDR data and interoperability with <code>Amount</code>.</p>
+<p><strong>Position 2: Include Time Units</strong><br />
+Focus on alignment with CLDR data and ease of use with <code>Amount</code>.</p>
 </li>
 </ul>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
@@ -72,46 +68,62 @@ Focus on alignment with CLDR data and interoperability with <code>Amount</code>.
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="6" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="6" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
-<h2 id="position-1-why-exclude-time-units-12">Position 1: Why Exclude Time Units? (1/2)</h2>
-<h3 id="1-dedicated-domain-specific-api-already-exists">1. Dedicated Domain-Specific API Already Exists</h3>
+<h2 id="position-1-why-exclude-time-units-13">Position 1: Why Exclude Time Units? (1/3)</h2>
+<h3 id="1-duration-units-have-footguns">1. Duration units have footguns</h3>
 <ul>
-<li>TC39 invested significant effort designing <strong><code>Intl.DurationFormat</code></strong> and <strong><code>Temporal.Duration</code></strong> specifically for time and duration formatting.</li>
-<li><code>DurationFormat</code> provides domain-essential features: balancing, normalization, and digital formatting styles (e.g., <code>2:30:00</code>) that general sequence formatting lacks.</li>
-<li>Providing a secondary, less-capable way to format durations in <code>Intl.NumberFormat</code> creates developer confusion and API redundancy.</li>
+<li><code>day-and-hour</code> crosses timezone / DST boundaries</li>
+<li><code>month-and-day</code> depends on calendar month lengths</li>
 </ul>
-<h3 id="2-hidden-complexities--pitfalls-of-time">2. Hidden Complexities &amp; Pitfalls of Time</h3>
+<h3 id="2-durations-are-complicated-to-format">2. Durations are complicated to format</h3>
 <ul>
-<li>Time units involve inherent domain hazards: combining <code>day-and-hour</code> crosses timezone / DST boundaries; <code>month-and-day</code> depends on calendar month lengths.</li>
-<li>Even if simple pairs like <code>minute-and-second</code> seem harmless, allowing time units in general sequence formatting invites subtle bugs.</li>
+<li>Digital formatting styles (<code>2:30:00</code>)</li>
+<li>Flexible handling of zero-valued fields</li>
 </ul>
+<p>Note: the domain-specific functionality impacts both large (month, day) and small (minute, second) duration units</p>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="7" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
-<h2 id="position-1-why-exclude-time-units-22">Position 1: Why Exclude Time Units? (2/2)</h2>
-<h3 id="3-clean-alignment-between-data--formatter-apis">3. Clean Alignment Between Data &amp; Formatter APIs</h3>
+<h2 id="position-1-why-exclude-time-units-23">Position 1: Why Exclude Time Units? (2/3)</h2>
+<h3 id="3-the-web-platform-should-promote-the-right-way-to-do-things">3. The Web Platform should promote the right way to do things</h3>
 <ul>
-<li><strong><code>Intl.DurationFormat</code></strong> has a 1-to-1 correspondence with <strong><code>Temporal.Duration</code></strong>.</li>
-<li><strong><code>Intl.NumberFormat</code></strong> should align cleanly with <strong><code>Amount</code></strong>.</li>
-<li>Creating time-based <code>Amount</code> sequences that duplicate <code>Temporal.Duration</code> functionality blurs architectural boundaries.</li>
+<li>We just spent 9 years designing Temporal</li>
+<li>We shouldn't add a worse way to represent and format time units</li>
 </ul>
-<h3 id="4-curated-web-platform-capabilities-vs-raw-cldr-data">4. Curated Web Platform Capabilities vs. Raw CLDR Data</h3>
+<h3 id="4-adding-duration-unit-formatting-to-intlnf-will-make-developers-expect-formatting-options-there">4. Adding duration unit formatting to Intl.NF will make developers expect formatting options there</h3>
 <ul>
-<li>While CLDR (<code>units.xml</code>) includes time unit combinations, ECMA-402 is not obligated to blindly expose every combination in CLDR.</li>
-<li>The web platform should curate its surface area to guide developers toward the correct tools (<em>&quot;We don't want to add bad time into the web platform&quot;</em>).</li>
+<li>Six years ago, we explicitly decided to make a separate Intl.DurationFormat instead of overloading Intl.NumberFormat with duration formatting options and functionality</li>
+<li>If we add duration unit formatting only now, then the lack of duration-specific features in Intl.NumberFormat will be a pain point for years to come</li>
 </ul>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-class="lead" data-theme="default" lang="C" class="lead" data-marpit-pagination="8" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--class:lead;--theme:default;" data-marpit-pagination-total="13">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="8" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="8" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
+<h2 id="position-1-why-exclude-time-units-33">Position 1: Why Exclude Time Units? (3/3)</h2>
+<h3 id="5-amount-is-already-more-general-than-intl">5. Amount is already more general than Intl</h3>
+<ul>
+<li>Amount will allow arbitrary units, like <code>jupiter-radius</code></li>
+<li>Intl will throw when formatting these non-sanctioned units</li>
+<li>So even if Amount supports time units, Intl.NF need not</li>
+</ul>
+<h3 id="6-intl-is-already-a-subset-of-cldr">6. Intl is already a subset of CLDR</h3>
+<ul>
+<li>CLDR has over 200 units; Intl has 45, each independently motivated</li>
+<li>Intl is already sanctioning a narrow subset of sequence units</li>
+<li>ECMA need not add time sequence units just because they are in CLDR</li>
+</ul>
+<footer>TC39 Intl Sequence Units - Issue #8</footer>
+</section>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="9" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-class="lead" data-theme="default" lang="C" class="lead" data-marpit-pagination="9" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--class:lead;--theme:default;" data-marpit-pagination-total="13">
 <h1 id="position-2-include-time-units">Position 2: Include Time Units</h1>
-<h2 id="prioritize-data--api-consistency">Prioritize Data &amp; API Consistency</h2>
+<h2 id="prioritize-flexibility-and-consistency-with-cldr">Prioritize Flexibility and Consistency with CLDR</h2>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="9" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="9" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="10" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="10" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
 <h2 id="position-2-why-include-time-units-12">Position 2: Why Include Time Units? (1/2)</h2>
 <h3 id="1-alignment-with-cldr-and-amount-conversion">1. Alignment with CLDR and <code>Amount</code> Conversion</h3>
 <ul>
-<li>Sequence units and unit conversions in <code>Amount</code> are defined in terms of CLDR data and usage preferences (which include <code>minute-and-second</code> for media duration and person age).</li>
-<li>Because <code>Amount.prototype.convertTo</code> can produce <code>minute-and-second</code> objects, it is arbitrary and ergonomic friction if those valid <code>Amount</code> objects throw errors when passed to <code>Intl.NumberFormat</code>.</li>
+<li>Sequence units and unit conversions in <code>Amount</code> are defined in terms of CLDR data</li>
+<li>There are usage preferences like &quot;duration-media&quot; that use time units</li>
+<li>If <code>Amount.prototype.convertTo</code> can produce <code>minute-and-second</code> objects, it is arbitrary and ergonomic friction if those valid <code>Amount</code> objects throw errors when passed to <code>Intl.NumberFormat</code>.</li>
 </ul>
 <h3 id="2-flexibility--multiple-valid-workflows">2. Flexibility / Multiple Valid Workflows</h3>
 <ul>
@@ -120,76 +132,32 @@ Focus on alignment with CLDR data and interoperability with <code>Amount</code>.
 </ul>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="10" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="10" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="11" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="11" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
 <h2 id="position-2-why-include-time-units-22">Position 2: Why Include Time Units? (2/2)</h2>
 <h3 id="3-not-a-formatting-hazard">3. Not a Formatting Hazard</h3>
 <ul>
 <li>Sequence formatting does not perform calendar or time math; it simply formats quantities together (like feet-and-inches or pounds-and-ounces).</li>
 <li>Formatting a valid sequence like <code>hour-and-minute</code> is fundamentally just list formatting with unit styles, which poses no inherent architectural danger.</li>
 </ul>
-<h3 id="4-dedicated-rendering-needs">4. Dedicated Rendering Needs</h3>
-<ul>
-<li>Certain unit sequences require specialized syntax or localization symbols beyond simple list formatting (e.g., degree-arcminute-arcsecond or minute-second notation: <code>° ' &quot;</code>).</li>
-<li>Sequence formatting provides the necessary localization machinery for these representations.</li>
-</ul>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="11" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="11" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
-<h2 id="summary-comparison">Summary Comparison</h2>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Aspect</th>
-<th style="text-align:left">Position 1: Exclude Time Units</th>
-<th style="text-align:left">Position 2: Include Time Units</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><strong>Primary Philosophy</strong></td>
-<td style="text-align:left">Guide developers to domain-dedicated tools (<code>DurationFormat</code>).</td>
-<td style="text-align:left">Maintain consistency across CLDR data, <code>Amount</code>, and formatters.</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>View on Duplication</strong></td>
-<td style="text-align:left">Redundant with <code>DurationFormat</code> / <code>Temporal.Duration</code>.</td>
-<td style="text-align:left">Legitimate alternative workflow for general measurement handling.</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Handling of Hazards</strong></td>
-<td style="text-align:left">Prevent bugs by blocking complex units (TZ / DST / calendar shifts).</td>
-<td style="text-align:left">Sequence formatting is just presentation; math hazards belong elsewhere.</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>CLDR Alignment</strong></td>
-<td style="text-align:left">ECMA-402 should curate a safe subset of CLDR.</td>
-<td style="text-align:left">If CLDR &amp; <code>Amount</code> support it, <code>Intl.NumberFormat</code> should format it.</td>
-</tr>
-</tbody>
-</table>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="12" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-class="lead" data-theme="default" lang="C" class="lead" data-marpit-pagination="12" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--class:lead;--theme:default;" data-marpit-pagination-total="13">
+<h1 id="next-steps">Next Steps</h1>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="12" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="12" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
-<h2 id="discussion--questions-for-tg1">Discussion &amp; Questions for TG1</h2>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="13" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-theme="default" lang="C" data-marpit-pagination="13" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--theme:default;" data-marpit-pagination-total="13">
+<h2 id="open-questions">Open Questions</h2>
+<p><strong>Intl Sequence Units:</strong></p>
 <ol>
-<li>
-<p><strong>Platform Guidance vs. Developer Flexibility:</strong><br />
-Should TC39 actively restrict general-purpose APIs to force adoption of domain-specific APIs (e.g., blocking time units in <code>Intl.NumberFormat</code> to favor <code>Intl.DurationFormat</code>)?</p>
-</li>
-<li>
-<p><strong>Interoperability between <code>Amount</code> and <code>Intl.NumberFormat</code>:</strong><br />
-If <code>Amount</code> unit conversion supports CLDR usage preferences (like <code>minute-and-second</code>), should <code>Intl.NumberFormat</code> be guaranteed to format any valid <code>Amount</code> sequence?</p>
-</li>
-<li>
-<p><strong>Subsetting Strategy:</strong><br />
-What is the appropriate level of strictness for Table 1 (Sanctioned Sequence Units) as <code>proposal-intl-sequence-units</code> progresses toward Stage 3?</p>
-</li>
+<li>Should Intl.NumberFormat support formatting sequence time units?</li>
 </ol>
-<footer>TC39 Intl Sequence Units - Issue #8</footer>
-</section>
-</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="13" data-paginate="true" data-footer="TC39 Intl Sequence Units - Issue #8" data-class="lead" data-background-color="#2c3e50" data-color="#ffffff" data-theme="default" lang="C" class="lead" data-marpit-pagination="13" style="--paginate:true;--footer:TC39 Intl Sequence Units - Issue #8;--class:lead;--background-color:#2c3e50;--color:#ffffff;--theme:default;color:#ffffff;background-color:#2c3e50;background-image:none;" data-marpit-pagination-total="13">
-<h1 id="thank-you">Thank You!</h1>
-<h2 id="discussion--qa">Discussion / Q&amp;A</h2>
+<p><strong>Amount:</strong></p>
+<ol>
+<li>Should Amount support single time units?</li>
+<li>Should Amount support sequence time units?</li>
+<li>Should Amount support time unit conversions?</li>
+</ol>
+<p><em>Thank you! Discussion</em></p>
 <footer>TC39 Intl Sequence Units - Issue #8</footer>
 </section>
 <script>!function(){"use strict";const t={h1:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"1"},style:"display: block; font-size: 2em; margin-block-start: 0.67em; margin-block-end: 0.67em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h2:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"2"},style:"display: block; font-size: 1.5em; margin-block-start: 0.83em; margin-block-end: 0.83em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h3:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"3"},style:"display: block; font-size: 1.17em; margin-block-start: 1em; margin-block-end: 1em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h4:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"4"},style:"display: block; margin-block-start: 1.33em; margin-block-end: 1.33em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h5:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"5"},style:"display: block; font-size: 0.83em; margin-block-start: 1.67em; margin-block-end: 1.67em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h6:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"6"},style:"display: block; font-size: 0.67em; margin-block-start: 2.33em; margin-block-end: 2.33em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},span:{proto:()=>HTMLSpanElement},pre:{proto:()=>HTMLElement,style:"display: block; font-family: monospace; white-space: pre; margin: 1em 0; --marp-auto-scaling-white-space: pre;"}},e="data-marp-auto-scaling-wrapper",i="data-marp-auto-scaling-svg",n="data-marp-auto-scaling-container";class s extends HTMLElement{container;containerSize;containerObserver;svg;svgComputedStyle;svgPreserveAspectRatio="xMinYMid meet";wrapper;wrapperSize;wrapperObserver;constructor(){super();const t=t=>([e])=>{const{width:i,height:n}=e.contentRect;this[t]={width:i,height:n},this.updateSVGRect()};this.attachShadow({mode:"open"}),this.containerObserver=new ResizeObserver(t("containerSize")),this.wrapperObserver=new ResizeObserver((...e)=>{t("wrapperSize")(...e),this.flushSvgDisplay()})}static get observedAttributes(){return["data-downscale-only"]}connectedCallback(){this.shadowRoot.innerHTML=`\n<style>\n  svg[${i}] { display: block; width: 100%; height: auto; vertical-align: top; }\n  span[${n}] { display: table; white-space: var(--marp-auto-scaling-white-space, nowrap); width: max-content; }\n</style>\n<div ${e}>\n  <svg part="svg" ${i}>\n    <foreignObject><span ${n}><slot></slot></span></foreignObject>\n  </svg>\n</div>\n    `.split(/\n\s*/).join(""),this.wrapper=this.shadowRoot.querySelector(`div[${e}]`)??void 0;const t=this.svg;this.svg=this.wrapper?.querySelector(`svg[${i}]`)??void 0,this.svg!==t&&(this.svgComputedStyle=this.svg?window.getComputedStyle(this.svg):void 0),this.container=this.svg?.querySelector(`span[${n}]`)??void 0,this.observe()}disconnectedCallback(){this.svg=void 0,this.svgComputedStyle=void 0,this.wrapper=void 0,this.container=void 0,this.observe()}attributeChangedCallback(){this.observe()}flushSvgDisplay(){const{svg:t}=this;t&&(t.style.display="inline",requestAnimationFrame(()=>{t.style.display=""}))}observe(){this.containerObserver.disconnect(),this.wrapperObserver.disconnect(),this.wrapper&&this.wrapperObserver.observe(this.wrapper),this.container&&this.containerObserver.observe(this.container),this.svgComputedStyle&&this.observeSVGStyle(this.svgComputedStyle)}observeSVGStyle(t){const e=()=>{const i=(()=>{const e=t.getPropertyValue("--preserve-aspect-ratio");if(e)return e.trim();return`x${(({textAlign:t,direction:e})=>{if(t.endsWith("left"))return"Min";if(t.endsWith("right"))return"Max";if("start"===t||"end"===t){let i="rtl"===e;return"end"===t&&(i=!i),i?"Max":"Min"}return"Mid"})(t)}YMid meet`})();i!==this.svgPreserveAspectRatio&&(this.svgPreserveAspectRatio=i,this.updateSVGRect()),t===this.svgComputedStyle&&requestAnimationFrame(e)};e()}updateSVGRect(){let t=Math.ceil(this.containerSize?.width??0);const e=Math.ceil(this.containerSize?.height??0);void 0!==this.dataset.downscaleOnly&&(t=Math.max(t,this.wrapperSize?.width??0));const i=this.svg?.querySelector(":scope > foreignObject");if(i?.setAttribute("width",`${t}`),i?.setAttribute("height",`${e}`),this.svg&&(this.svg.setAttribute("viewBox",`0 0 ${t} ${e}`),this.svg.setAttribute("preserveAspectRatio",this.svgPreserveAspectRatio),this.svg.style.height=t<=0||e<=0?"0":""),this.container){const t=this.svgPreserveAspectRatio.toLowerCase();this.container.style.marginLeft=t.startsWith("xmid")||t.startsWith("xmax")?"auto":"0",this.container.style.marginRight=t.startsWith("xmi")?"auto":"0"}}}const r=(t,{attrs:e={},style:i})=>class extends t{constructor(...t){super(...t);for(const[t,i]of Object.entries(e))this.hasAttribute(t)||this.setAttribute(t,i);this._shadow()}static get observedAttributes(){return["data-auto-scaling"]}connectedCallback(){this._update()}attributeChangedCallback(){this._update()}_shadow(){if(!this.shadowRoot)try{this.attachShadow({mode:"open"})}catch(t){if(!(t instanceof Error&&"NotSupportedError"===t.name))throw t}return this.shadowRoot}_update(){const t=this._shadow();if(t){const e=i?`<style>:host { ${i} }</style>`:"";let n="<slot></slot>";const{autoScaling:s}=this.dataset;if(void 0!==s){n=`<marp-auto-scaling exportparts="svg:auto-scaling" ${"downscale-only"===s?"data-downscale-only":""}>${n}</marp-auto-scaling>`}t.innerHTML=e+n}}};let o;const a=()=>o??(o=!!document.createElement("div",{is:"marp-auto-scaling"}).outerHTML.startsWith("<div is"),o),l=Symbol();let c;const d="marpitSVGPolyfill:setZoomFactor,",h=Symbol(),g=Symbol();const p=()=>{const t="Apple Computer, Inc."===navigator.vendor,e=t?[v]:[],i={then:e=>(t?(async()=>{if(void 0===c){const t=document.createElement("canvas");t.width=10,t.height=10;const e=t.getContext("2d"),i=new Image(10,10),n=new Promise(t=>{i.addEventListener("load",()=>t())});i.crossOrigin="anonymous",i.src="data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%201%201%22%3E%3CforeignObject%20width%3D%221%22%20height%3D%221%22%20requiredExtensions%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%3E%3Cdiv%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%20style%3D%22width%3A%201px%3B%20height%3A%201px%3B%20background%3A%20red%3B%20position%3A%20relative%22%3E%3C%2Fdiv%3E%3C%2FforeignObject%3E%3C%2Fsvg%3E",await n,e.drawImage(i,0,0),c=e.getImageData(5,5,1,1).data[3]<128}return c})().then(t=>{null==e||e(t?[v]:[])}):null==e||e([]),i)};return Object.assign(e,i)};let m,u;function v(t){const e="object"==typeof t&&t.target||document,i="object"==typeof t?t.zoom:t;window[g]||(Object.defineProperty(window,g,{configurable:!0,value:!0}),document.body.style.zoom=1.0001,document.body.offsetHeight,document.body.style.zoom=1,window.addEventListener("message",({data:t,origin:e})=>{if(e===window.origin)try{if(t&&"string"==typeof t&&t.startsWith(d)){const[,e]=t.split(","),i=Number.parseFloat(e);Number.isNaN(i)||(u=i)}}catch(t){console.error(t)}}));let n=!1;Array.from(e.querySelectorAll("svg[data-marpit-svg]"),t=>{var e,s,r,o;t.style.transform||(t.style.transform="translateZ(0)");const a=i||u||t.currentScale||1;m!==a&&(m=a,n=a);const l=t.getBoundingClientRect(),{length:c}=t.children;for(let i=0;i<c;i+=1){const n=t.children[i];if(n.getScreenCTM){const t=n.getScreenCTM();if(t){const i=null!==(s=null===(e=n.x)||void 0===e?void 0:e.baseVal.value)&&void 0!==s?s:0,c=null!==(o=null===(r=n.y)||void 0===r?void 0:r.baseVal.value)&&void 0!==o?o:0,d=n.children.length;for(let e=0;e<d;e+=1){const s=n.children[e];if("SECTION"===s.tagName){const{style:e}=s;e.transformOrigin||(e.transformOrigin=`${-i}px ${-c}px`),e.transform=`scale(${a}) matrix(${t.a}, ${t.b}, ${t.c}, ${t.d}, ${t.e-l.left}, ${t.f-l.top}) translateZ(0.0001px)`;break}}}}}}),!1!==n&&Array.from(e.querySelectorAll("iframe"),({contentWindow:t})=>{null==t||t.postMessage(`${d}${n}`,"null"===window.origin?"*":window.origin)})}function w({once:t=!1,target:e=document}={}){const i=function(t=document){if(t[h])return t[h];let e=!0;const i=()=>{e=!1,delete t[h]};Object.defineProperty(t,h,{configurable:!0,value:i});let n=[],s=!1;(async()=>{try{n=await p()}finally{s=!0}})();const r=()=>{for(const e of n)e({target:t});s&&0===n.length||e&&window.requestAnimationFrame(r)};return r(),i}(e);return t?(i(),()=>{}):i}m=1,u=void 0;const b=Symbol(),y=(e=document)=>{if("undefined"==typeof window)throw new Error("Marp Core's browser script is valid only in browser context.");if(((e=document)=>{const i=window[l];i||customElements.define("marp-auto-scaling",s);for(const n of Object.keys(t)){const s=`marp-${n}`,o=t[n].proto();a()&&o!==HTMLElement?i||customElements.define(s,r(o,{style:t[n].style}),{extends:n}):(i||customElements.define(s,r(HTMLElement,t[n])),e.querySelectorAll(`${n}[is="${s}"]`).forEach(t=>{t.outerHTML=t.outerHTML.replace(new RegExp(`^<${n}`,"i"),`<${s}`).replace(new RegExp(`</${n}>$`,"i"),`</${s}>`)}))}window[l]=!0})(e),e[b])return e[b];const i=w({target:e}),n=()=>{i(),delete e[b]},o=Object.assign(n,{cleanup:n,update:()=>y(e)});return Object.defineProperty(e,b,{configurable:!0,value:o}),o},f=document.currentScript;y(f?f.getRootNode():document)}();
