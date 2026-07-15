@@ -116,9 +116,9 @@ In recent TG2 discussions (June & July 2026), two distinct architectural viewpoi
 
 ### 6. Intl is already a subset of CLDR
 
-- CLDR has over 200 units; Intl has 45, each independently motivated
-- Intl is already sanctioning a narrow subset of sequence units
-- ECMA need not add time sequence units just because they are in CLDR
+- Intl is already sanctioning a narrow subset of sequence units. Therefore, excluding time units from the sanctioned list of sequence units does not create a new class of errors; it merely falls into the current class of errors.
+
+> **Note:** CLDR has over 200 units; Intl has 45, each independently motivated. Time units are among the 45.
 
 ---
 
