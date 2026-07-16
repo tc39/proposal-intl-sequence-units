@@ -17,6 +17,13 @@ _color: #ffffff
 
 ---
 
+## Relevant Issues
+
+- **proposal-intl-sequence-units#8**: [Should we support time units?](https://github.com/tc39/proposal-intl-sequence-units/issues/8)
+- **proposal-amount#139**: [Duration / time units in Amount](https://github.com/tc39/proposal-amount/issues/139)
+
+---
+
 ## Background: What are Sequence Units?
 
 Measurement systems frequently employ multiple units in sequence to express a single magnitude.
