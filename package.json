@@ -5,13 +5,13 @@
   "scripts": {
     "start": "npm run build-loose -- --watch",
     "build": "npm run build-loose -- --strict",
-    "build-loose": "node -e 'fs.mkdirSync(\"build\", { recursive: true })' && ecmarkup --load-biblio @tc39/ecma262-biblio --load-biblio @tc39/ecma402-biblio --verbose spec.emu build/index.html --lint-spec",
+    "build-loose": "node -e 'fs.mkdirSync(\"build\", { recursive: true })' && ecmarkup --load-biblio @tc39/ecma262-biblio --load-biblio @tc39/ecma402-biblio --write-biblio build/biblio.json --verbose spec.emu build/index.html --lint-spec",
     "build:slides": "marp -I slides/ -o build/slides/"
   },
-  "homepage": "https://github.com/tc39-transfer/proposal-intl-sequence-units#readme",
+  "homepage": "https://github.com/tc39/proposal-intl-sequence-units#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tc39-transfer/proposal-intl-sequence-units.git"
+    "url": "git+https://github.com/tc39/proposal-intl-sequence-units.git"
   },
   "license": "MIT",
   "devDependencies": {
