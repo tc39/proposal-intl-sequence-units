@@ -27,10 +27,24 @@
 </foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="3" data-paginate="true" data-footer="Intl Sequence Units - Stage 2 Update" data-theme="default" lang="C" data-marpit-pagination="3" style="--paginate:true;--footer:Intl Sequence Units - Stage 2 Update;--theme:default;" data-marpit-pagination-total="6">
 <h2 id="issue-16-array-as-input">Issue #16: Array as input</h2>
 <p>Old:</p>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> format meter-and-centimeter with old object syntax</span>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-keyword">const</span> nf = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intl</span>.<span class="hljs-title class_">NumberFormat</span>(<span class="hljs-string">&#x27;en-US&#x27;</span>, {
+  <span class="hljs-attr">style</span>: <span class="hljs-string">&#x27;unit&#x27;</span>,
+  <span class="hljs-attr">unit</span>: <span class="hljs-string">&#x27;meter-and-centimeter&#x27;</span>,
+  <span class="hljs-attr">unitDisplay</span>: <span class="hljs-string">&#x27;long&#x27;</span>,
+});
+
+nf.<span class="hljs-title function_">format</span>({ <span class="hljs-attr">meter</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">centimeter</span>: <span class="hljs-number">80</span> });
+<span class="hljs-comment">// &quot;1 meter, 80 centimeters&quot;</span>
 </code></pre>
 <p>New:</p>
-<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> format meter-and-centimeter with new array syntax</span>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-keyword">const</span> nf = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intl</span>.<span class="hljs-title class_">NumberFormat</span>(<span class="hljs-string">&#x27;en-US&#x27;</span>, {
+  <span class="hljs-attr">style</span>: <span class="hljs-string">&#x27;unit&#x27;</span>,
+  <span class="hljs-attr">unit</span>: <span class="hljs-string">&#x27;meter-and-centimeter&#x27;</span>,
+  <span class="hljs-attr">unitDisplay</span>: <span class="hljs-string">&#x27;long&#x27;</span>,
+});
+
+nf.<span class="hljs-title function_">format</span>([<span class="hljs-number">1</span>, <span class="hljs-number">80</span>]);
+<span class="hljs-comment">// &quot;1 meter, 80 centimeters&quot;</span>
 </code></pre>
 <footer>Intl Sequence Units - Stage 2 Update</footer>
 </section>
@@ -39,7 +53,7 @@
 <ul>
 <li><strong>Topic:</strong> Handling significant digit options (<code>maximumSignificantDigits</code>, <code>minimumSignificantDigits</code>, and rounding priorities) when formatting sequence units.</li>
 <li><strong>Background:</strong> Sequence units frequently use non-decimal ratios (e.g. 12 inches/foot, 16 oz/lb). Significant digit rounding across compound fields is ill-defined and brittle (e.g. how to distribute significant digits or round across non-decimal boundaries).</li>
-<li><strong>TG2 Recommentation:</strong> Throw an exception whenever <code>Intl.NumberFormat</code> is configured with significant digit rounding (as tracked by the internal <code>[[RoundingType]]</code> slot).</li>
+<li><strong>TG2 Recommendation:</strong> Throw an exception whenever <code>Intl.NumberFormat</code> is configured with significant digit rounding (as tracked by the internal <code>[[RoundingType]]</code> slot).</li>
 </ul>
 <footer>Intl Sequence Units - Stage 2 Update</footer>
 </section>
