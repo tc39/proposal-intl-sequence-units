@@ -18,7 +18,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
-;color:#ffffff;background-color:#2c3e50;background-image:none;" data-marpit-pagination-total="6">
+;color:#ffffff;background-color:#2c3e50;background-image:none;" data-marpit-pagination-total="7">
 <h1 id="intl-sequence-units">Intl Sequence Units</h1>
 <h2 id="stage-2-update">Stage 2 Update</h2>
 <h3 id="september-2026-tc39">September 2026 TC39</h3>
@@ -34,7 +34,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
-;" data-marpit-pagination-total="6">
+;" data-marpit-pagination-total="7">
 <h2 id="background-what-are-sequence-units">Background: What are Sequence Units?</h2>
 <p>Measurement systems frequently employ multiple units in sequence to express a single magnitude.</p>
 <p><strong>Example sanctioned units:</strong></p>
@@ -54,7 +54,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
-;" data-marpit-pagination-total="6">
+;" data-marpit-pagination-total="7">
 <h2 id="issue-16-array-as-input">Issue #16: Array as input</h2>
 <p>TG2 approved switching from an object to an array:</p>
 <ul>
@@ -97,7 +97,7 @@ nf.<span class="hljs-title function_">format</span>([<span class="hljs-number">1
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
-;" data-marpit-pagination-total="6">
+;" data-marpit-pagination-total="7">
 <h2 id="issue-14-significant-digit-options">Issue #14: Significant digit options</h2>
 <ul>
 <li><strong>The Problem:</strong> Sequence units use non-decimal ratios (12 in/ft, 16 oz/lb). Significant digits across mixed units are ill-defined:
@@ -121,20 +121,23 @@ nf.<span class="hljs-title function_">format</span>([<span class="hljs-number">1
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
-;" data-marpit-pagination-total="6">
+;" data-marpit-pagination-total="7">
 <h2 id="issue-8-timeduration-units">Issue #8: Time/duration units</h2>
 <ul>
 <li><strong>July Plenary Discussion:</strong>
 <ul>
-<li><em>Exclude from NumberFormat:</em> Duration units have domain-specific complexities (DST boundaries, calendar month lengths) and already have dedicated APIs (<code>Temporal.Duration</code>, <code>Intl.DurationFormat</code>).</li>
-<li><em>Include for Amount:</em> CLDR defines duration units/conversions; developers expect unified handling.</li>
+<li><em>Intl perspective (exclude):</em>
+<ul>
+<li>Durations have domain quirks (DST, calendar month lengths)</li>
+<li><code>Intl.DurationFormat</code> &amp; <code>Temporal.Duration</code> are purpose-built</li>
 </ul>
 </li>
-<li><strong>Suggested Path Forward:</strong>
+<li><em>Amount perspective (include):</em>
 <ul>
-<li><code>Intl.NumberFormat</code> keeps its current list of sanctioned units, without time units</li>
-<li><code>Amount</code> supports representing time units and limited conversions from CLDR</li>
-<li><code>Amount.prototype.toLocaleString</code> delegates to <code>Intl.DurationFormat</code> for time units</li>
+<li><code>Amount</code> is a unified value type for all units</li>
+<li>CLDR <code>units.xml</code> defines time units and conversion factors</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -150,7 +153,37 @@ nf.<span class="hljs-title function_">format</span>([<span class="hljs-number">1
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
-;" data-marpit-pagination-total="6">
+;" data-marpit-pagination-total="7">
+<h2 id="issue-8-suggested-path-forward">Issue #8: Suggested Path Forward</h2>
+<ul>
+<li><strong>Intl.NumberFormat:</strong> Excludes time units from sequence units</li>
+<li><strong>Amount:</strong> Supports time units; delegates formatting
+<ul>
+<li><em>(Details to be discussed and brought back in an update to Amount)</em></li>
+</ul>
+</li>
+</ul>
+<pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-comment">// Intl.NumberFormat rejects time sequence units:</span>
+<span class="hljs-keyword">new</span> <span class="hljs-title class_">Intl</span>.<span class="hljs-title class_">NumberFormat</span>(<span class="hljs-string">&#x27;en-US&#x27;</span>, { <span class="hljs-attr">style</span>: <span class="hljs-string">&#x27;unit&#x27;</span>, <span class="hljs-attr">unit</span>: <span class="hljs-string">&#x27;hour-and-minute&#x27;</span> });
+<span class="hljs-comment">// <img class="emoji" draggable="false" alt="❌" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@17.0.3/assets/svg/274c.svg" data-marp-twemoji=""/> RangeError</span>
+
+<span class="hljs-comment">// Amount supports time units, delegating formatting:</span>
+<span class="hljs-keyword">const</span> amt = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Amount</span>([<span class="hljs-number">2</span>, <span class="hljs-number">30</span>], <span class="hljs-string">&#x27;hour-and-minute&#x27;</span>);
+amt.<span class="hljs-title function_">toLocaleString</span>(<span class="hljs-string">&#x27;en-US&#x27;</span>); <span class="hljs-comment">// &quot;2 hr, 30 min&quot; (via Intl.DurationFormat)</span>
+</code></pre>
+<footer>Intl Sequence Units - Stage 2 Update</footer>
+</section>
+</foreignObject></svg><svg data-marpit-svg="" viewBox="0 0 1280 720"><foreignObject width="1280" height="720"><section id="7" data-paginate="true" data-footer="Intl Sequence Units - Stage 2 Update" data-theme="default" data-style=".columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+" lang="C" data-marpit-pagination="7" style="--paginate:true;--footer:Intl Sequence Units - Stage 2 Update;--theme:default;--style:.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+;" data-marpit-pagination-total="7">
 <h2 id="summary--discussion">Summary &amp; Discussion</h2>
 <ul>
 <li><strong>Issue #16:</strong> Array input (<code>[1, 80]</code>) — reduces footguns, easier invariants</li>
