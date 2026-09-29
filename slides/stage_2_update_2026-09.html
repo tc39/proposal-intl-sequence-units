@@ -100,10 +100,10 @@ nf.<span class="hljs-title function_">format</span>([<span class="hljs-number">1
 ;" data-marpit-pagination-total="7">
 <h2 id="issue-14-significant-digit-options">Issue #14: Significant digit options</h2>
 <ul>
-<li><strong>The Problem:</strong> Sequence units use non-decimal ratios (12 in/ft, 16 oz/lb). Significant digits across mixed units are ill-defined:
+<li><strong>The Problem:</strong> Significant digits across mixed units are ill-defined:
 <ul>
-<li>Applying sigfigs to the overall magnitude: 5 ft 10 in has 2 significant digits, but it is silly to round 5 ft 6 in to 5 ft 10 in</li>
-<li>Applying sigfigs to the least significant unit: 2 sigfigs could produce <code>&quot;3 ft, 0.18 in&quot;</code>, which is not 2 significant digits overall</li>
+<li><em>Applying sigfigs to the overall digits:</em> Could round 5 ft 11 in to 5 ft 10 in</li>
+<li><em>Applying sigfigs to the least significant unit:</em> Could produce 3 ft 0.18 in</li>
 </ul>
 </li>
 <li><strong>TG2 Recommendation:</strong> Disallow significant digit options for sequence units; throw a <code>RangeError</code> if configured (tracked by internal <code>[[RoundingType]]</code>).</li>
@@ -123,21 +123,18 @@ nf.<span class="hljs-title function_">format</span>([<span class="hljs-number">1
 }
 ;" data-marpit-pagination-total="7">
 <h2 id="issue-8-timeduration-units">Issue #8: Time/duration units</h2>
+<p>July Plenary Discussion:</p>
 <ul>
-<li><strong>July Plenary Discussion:</strong>
-<ul>
-<li><em>Intl perspective (exclude):</em>
+<li><strong>Intl perspective:</strong>
 <ul>
 <li>Durations have domain quirks (DST, calendar month lengths)</li>
 <li><code>Intl.DurationFormat</code> &amp; <code>Temporal.Duration</code> are purpose-built</li>
 </ul>
 </li>
-<li><em>Amount perspective (include):</em>
+<li><strong>Amount perspective:</strong>
 <ul>
 <li><code>Amount</code> is a unified value type for all units</li>
 <li>CLDR <code>units.xml</code> defines time units and conversion factors</li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -156,12 +153,8 @@ nf.<span class="hljs-title function_">format</span>([<span class="hljs-number">1
 ;" data-marpit-pagination-total="7">
 <h2 id="issue-8-suggested-path-forward">Issue #8: Suggested Path Forward</h2>
 <ul>
-<li><strong>Intl.NumberFormat:</strong> Excludes time units from sequence units</li>
-<li><strong>Amount:</strong> Supports time units; delegates formatting
-<ul>
-<li><em>(Details to be discussed and brought back in an update to Amount)</em></li>
-</ul>
-</li>
+<li><strong>Intl.NumberFormat:</strong> Continue to exclude time units from sequence units</li>
+<li><strong>Amount:</strong> Supports time units to the scope in CLDR units.xml; delegate formatting to <code>Intl.DurationFormat</code> (details to be discussed and brought back in an update to Amount)</li>
 </ul>
 <pre is="marp-pre" data-auto-scaling="downscale-only"><code class="language-javascript"><span class="hljs-comment">// Intl.NumberFormat rejects time sequence units:</span>
 <span class="hljs-keyword">new</span> <span class="hljs-title class_">Intl</span>.<span class="hljs-title class_">NumberFormat</span>(<span class="hljs-string">&#x27;en-US&#x27;</span>, { <span class="hljs-attr">style</span>: <span class="hljs-string">&#x27;unit&#x27;</span>, <span class="hljs-attr">unit</span>: <span class="hljs-string">&#x27;hour-and-minute&#x27;</span> });
@@ -169,7 +162,8 @@ nf.<span class="hljs-title function_">format</span>([<span class="hljs-number">1
 
 <span class="hljs-comment">// Amount supports time units, delegating formatting:</span>
 <span class="hljs-keyword">const</span> amt = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Amount</span>([<span class="hljs-number">2</span>, <span class="hljs-number">30</span>], <span class="hljs-string">&#x27;hour-and-minute&#x27;</span>);
-amt.<span class="hljs-title function_">toLocaleString</span>(<span class="hljs-string">&#x27;en-US&#x27;</span>); <span class="hljs-comment">// &quot;2 hr, 30 min&quot; (via Intl.DurationFormat)</span>
+amt.<span class="hljs-title function_">toLocaleString</span>(<span class="hljs-string">&#x27;en-US&#x27;</span>);
+<span class="hljs-comment">// &quot;2 hr, 30 min&quot; (via Intl.DurationFormat)</span>
 </code></pre>
 <footer>Intl Sequence Units - Stage 2 Update</footer>
 </section>
@@ -188,9 +182,9 @@ amt.<span class="hljs-title function_">toLocaleString</span>(<span class="hljs-s
 <ul>
 <li><strong>Issue #16:</strong> Array input (<code>[1, 80]</code>) — reduces footguns, easier invariants</li>
 <li><strong>Issue #14:</strong> Disallow significant digits — avoids non-decimal ambiguity</li>
-<li><strong>Issue #8:</strong> Exclude time units from <code>Intl.NumberFormat</code> — delegate via <code>Amount</code></li>
-<li><strong>Stage 2.7 Reviewers:</strong> <a href="https://github.com/tc39/notes/blob/main/meetings/2026-05/may-20.md#intl-sequence-units-for-stage-1-or-2">Eemeli Aro (EAO) and Dan Minor (DLM)</a></li>
+<li><strong>Issue #8:</strong> Continue to exclude time sequence units from <code>Intl.NumberFormat</code></li>
 </ul>
+<p>Next time: approaching Stage 2.7. (Reviewers are <a href="https://github.com/tc39/notes/blob/main/meetings/2026-05/may-20.md#intl-sequence-units-for-stage-1-or-2">Eemeli Aro (EAO) and Dan Minor (DLM)</a>)</p>
 <footer>Intl Sequence Units - Stage 2 Update</footer>
 </section>
 <script>!function(){"use strict";const t={h1:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"1"},style:"display: block; font-size: 2em; margin-block-start: 0.67em; margin-block-end: 0.67em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h2:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"2"},style:"display: block; font-size: 1.5em; margin-block-start: 0.83em; margin-block-end: 0.83em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h3:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"3"},style:"display: block; font-size: 1.17em; margin-block-start: 1em; margin-block-end: 1em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h4:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"4"},style:"display: block; margin-block-start: 1.33em; margin-block-end: 1.33em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h5:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"5"},style:"display: block; font-size: 0.83em; margin-block-start: 1.67em; margin-block-end: 1.67em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},h6:{proto:()=>HTMLHeadingElement,attrs:{role:"heading","aria-level":"6"},style:"display: block; font-size: 0.67em; margin-block-start: 2.33em; margin-block-end: 2.33em; margin-inline-start: 0px; margin-inline-end: 0px; font-weight: bold;"},span:{proto:()=>HTMLSpanElement},pre:{proto:()=>HTMLElement,style:"display: block; font-family: monospace; white-space: pre; margin: 1em 0; --marp-auto-scaling-white-space: pre;"}},e="data-marp-auto-scaling-wrapper",i="data-marp-auto-scaling-svg",n="data-marp-auto-scaling-container";class s extends HTMLElement{container;containerSize;containerObserver;svg;svgComputedStyle;svgPreserveAspectRatio="xMinYMid meet";wrapper;wrapperSize;wrapperObserver;constructor(){super();const t=t=>([e])=>{const{width:i,height:n}=e.contentRect;this[t]={width:i,height:n},this.updateSVGRect()};this.attachShadow({mode:"open"}),this.containerObserver=new ResizeObserver(t("containerSize")),this.wrapperObserver=new ResizeObserver((...e)=>{t("wrapperSize")(...e),this.flushSvgDisplay()})}static get observedAttributes(){return["data-downscale-only"]}connectedCallback(){this.shadowRoot.innerHTML=`\n<style>\n  svg[${i}] { display: block; width: 100%; height: auto; vertical-align: top; }\n  span[${n}] { display: table; white-space: var(--marp-auto-scaling-white-space, nowrap); width: max-content; }\n</style>\n<div ${e}>\n  <svg part="svg" ${i}>\n    <foreignObject><span ${n}><slot></slot></span></foreignObject>\n  </svg>\n</div>\n    `.split(/\n\s*/).join(""),this.wrapper=this.shadowRoot.querySelector(`div[${e}]`)??void 0;const t=this.svg;this.svg=this.wrapper?.querySelector(`svg[${i}]`)??void 0,this.svg!==t&&(this.svgComputedStyle=this.svg?window.getComputedStyle(this.svg):void 0),this.container=this.svg?.querySelector(`span[${n}]`)??void 0,this.observe()}disconnectedCallback(){this.svg=void 0,this.svgComputedStyle=void 0,this.wrapper=void 0,this.container=void 0,this.observe()}attributeChangedCallback(){this.observe()}flushSvgDisplay(){const{svg:t}=this;t&&(t.style.display="inline",requestAnimationFrame(()=>{t.style.display=""}))}observe(){this.containerObserver.disconnect(),this.wrapperObserver.disconnect(),this.wrapper&&this.wrapperObserver.observe(this.wrapper),this.container&&this.containerObserver.observe(this.container),this.svgComputedStyle&&this.observeSVGStyle(this.svgComputedStyle)}observeSVGStyle(t){const e=()=>{const i=(()=>{const e=t.getPropertyValue("--preserve-aspect-ratio");if(e)return e.trim();return`x${(({textAlign:t,direction:e})=>{if(t.endsWith("left"))return"Min";if(t.endsWith("right"))return"Max";if("start"===t||"end"===t){let i="rtl"===e;return"end"===t&&(i=!i),i?"Max":"Min"}return"Mid"})(t)}YMid meet`})();i!==this.svgPreserveAspectRatio&&(this.svgPreserveAspectRatio=i,this.updateSVGRect()),t===this.svgComputedStyle&&requestAnimationFrame(e)};e()}updateSVGRect(){let t=Math.ceil(this.containerSize?.width??0);const e=Math.ceil(this.containerSize?.height??0);void 0!==this.dataset.downscaleOnly&&(t=Math.max(t,this.wrapperSize?.width??0));const i=this.svg?.querySelector(":scope > foreignObject");if(i?.setAttribute("width",`${t}`),i?.setAttribute("height",`${e}`),this.svg&&(this.svg.setAttribute("viewBox",`0 0 ${t} ${e}`),this.svg.setAttribute("preserveAspectRatio",this.svgPreserveAspectRatio),this.svg.style.height=t<=0||e<=0?"0":""),this.container){const t=this.svgPreserveAspectRatio.toLowerCase();this.container.style.marginLeft=t.startsWith("xmid")||t.startsWith("xmax")?"auto":"0",this.container.style.marginRight=t.startsWith("xmi")?"auto":"0"}}}const r=(t,{attrs:e={},style:i})=>class extends t{constructor(...t){super(...t);for(const[t,i]of Object.entries(e))this.hasAttribute(t)||this.setAttribute(t,i);this._shadow()}static get observedAttributes(){return["data-auto-scaling"]}connectedCallback(){this._update()}attributeChangedCallback(){this._update()}_shadow(){if(!this.shadowRoot)try{this.attachShadow({mode:"open"})}catch(t){if(!(t instanceof Error&&"NotSupportedError"===t.name))throw t}return this.shadowRoot}_update(){const t=this._shadow();if(t){const e=i?`<style>:host { ${i} }</style>`:"";let n="<slot></slot>";const{autoScaling:s}=this.dataset;if(void 0!==s){n=`<marp-auto-scaling exportparts="svg:auto-scaling" ${"downscale-only"===s?"data-downscale-only":""}>${n}</marp-auto-scaling>`}t.innerHTML=e+n}}};let o;const a=()=>o??(o=!!document.createElement("div",{is:"marp-auto-scaling"}).outerHTML.startsWith("<div is"),o),l=Symbol();let c;const d="marpitSVGPolyfill:setZoomFactor,",h=Symbol(),g=Symbol();const p=()=>{const t="Apple Computer, Inc."===navigator.vendor,e=t?[v]:[],i={then:e=>(t?(async()=>{if(void 0===c){const t=document.createElement("canvas");t.width=10,t.height=10;const e=t.getContext("2d"),i=new Image(10,10),n=new Promise(t=>{i.addEventListener("load",()=>t())});i.crossOrigin="anonymous",i.src="data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%201%201%22%3E%3CforeignObject%20width%3D%221%22%20height%3D%221%22%20requiredExtensions%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%3E%3Cdiv%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxhtml%22%20style%3D%22width%3A%201px%3B%20height%3A%201px%3B%20background%3A%20red%3B%20position%3A%20relative%22%3E%3C%2Fdiv%3E%3C%2FforeignObject%3E%3C%2Fsvg%3E",await n,e.drawImage(i,0,0),c=e.getImageData(5,5,1,1).data[3]<128}return c})().then(t=>{null==e||e(t?[v]:[])}):null==e||e([]),i)};return Object.assign(e,i)};let m,u;function v(t){const e="object"==typeof t&&t.target||document,i="object"==typeof t?t.zoom:t;window[g]||(Object.defineProperty(window,g,{configurable:!0,value:!0}),document.body.style.zoom=1.0001,document.body.offsetHeight,document.body.style.zoom=1,window.addEventListener("message",({data:t,origin:e})=>{if(e===window.origin)try{if(t&&"string"==typeof t&&t.startsWith(d)){const[,e]=t.split(","),i=Number.parseFloat(e);Number.isNaN(i)||(u=i)}}catch(t){console.error(t)}}));let n=!1;Array.from(e.querySelectorAll("svg[data-marpit-svg]"),t=>{var e,s,r,o;t.style.transform||(t.style.transform="translateZ(0)");const a=i||u||t.currentScale||1;m!==a&&(m=a,n=a);const l=t.getBoundingClientRect(),{length:c}=t.children;for(let i=0;i<c;i+=1){const n=t.children[i];if(n.getScreenCTM){const t=n.getScreenCTM();if(t){const i=null!==(s=null===(e=n.x)||void 0===e?void 0:e.baseVal.value)&&void 0!==s?s:0,c=null!==(o=null===(r=n.y)||void 0===r?void 0:r.baseVal.value)&&void 0!==o?o:0,d=n.children.length;for(let e=0;e<d;e+=1){const s=n.children[e];if("SECTION"===s.tagName){const{style:e}=s;e.transformOrigin||(e.transformOrigin=`${-i}px ${-c}px`),e.transform=`scale(${a}) matrix(${t.a}, ${t.b}, ${t.c}, ${t.d}, ${t.e-l.left}, ${t.f-l.top}) translateZ(0.0001px)`;break}}}}}}),!1!==n&&Array.from(e.querySelectorAll("iframe"),({contentWindow:t})=>{null==t||t.postMessage(`${d}${n}`,"null"===window.origin?"*":window.origin)})}function w({once:t=!1,target:e=document}={}){const i=function(t=document){if(t[h])return t[h];let e=!0;const i=()=>{e=!1,delete t[h]};Object.defineProperty(t,h,{configurable:!0,value:i});let n=[],s=!1;(async()=>{try{n=await p()}finally{s=!0}})();const r=()=>{for(const e of n)e({target:t});s&&0===n.length||e&&window.requestAnimationFrame(r)};return r(),i}(e);return t?(i(),()=>{}):i}m=1,u=void 0;const b=Symbol(),y=(e=document)=>{if("undefined"==typeof window)throw new Error("Marp Core's browser script is valid only in browser context.");if(((e=document)=>{const i=window[l];i||customElements.define("marp-auto-scaling",s);for(const n of Object.keys(t)){const s=`marp-${n}`,o=t[n].proto();a()&&o!==HTMLElement?i||customElements.define(s,r(o,{style:t[n].style}),{extends:n}):(i||customElements.define(s,r(HTMLElement,t[n])),e.querySelectorAll(`${n}[is="${s}"]`).forEach(t=>{t.outerHTML=t.outerHTML.replace(new RegExp(`^<${n}`,"i"),`<${s}`).replace(new RegExp(`</${n}>$`,"i"),`</${s}>`)}))}window[l]=!0})(e),e[b])return e[b];const i=w({target:e}),n=()=>{i(),delete e[b]},o=Object.assign(n,{cleanup:n,update:()=>y(e)});return Object.defineProperty(e,b,{configurable:!0,value:o}),o},f=document.currentScript;y(f?f.getRootNode():document)}();
