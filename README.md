@@ -12,6 +12,7 @@ Presentations:
 - 114th TC39 (May 2026): Stage 1 & 2 - [Slides](https://tc39.es/proposal-intl-sequence-units/slides/stage_1_or_2.html) | [Notes](https://github.com/tc39/notes/blob/main/meetings/2026-05/may-20.md#intl-sequence-units-for-stage-1-or-2)
 - 115th TC39 (July 2026): [Slides](https://tc39.es/proposal-intl-sequence-units/slides/time-units.html)
 - 116th TC39 (September 2026): Stage 2 Update - [Slides](https://tc39.es/proposal-intl-sequence-units/slides/stage_2_update_2026-09.html)
+- 117th TC39 (November 2026): Stage 2 Update - [Slides](https://tc39.es/proposal-intl-sequence-units/slides/stage_2_update_2026-11.html)
 
 ## Motivation
 
