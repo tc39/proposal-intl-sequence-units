@@ -56,20 +56,23 @@ nf.format([-5, -11]);
 
 ---
 
-## Issue #20: How to Read the List of Units?
+## Issue #20: Precedents for Reading List Inputs
 
-With `format()` and `formatToParts()` accepting `[5, 11]`, there are three conventions in ECMA-262 / ECMA-402 for reading list inputs:
+Across ECMA-262 and ECMA-402, there are **four** patterns for reading list-like arguments:
 
-1. **Iterator protocol** (`GetIterator` + `IteratorToList`)
-   - Precedent: `Intl.ListFormat` (`StringListFromIterable`)
-2. **Array-like** (`LengthOfArrayLike` + indexed `Get`)
-   - Reads `.length` and properties `"0"` .. `length - 1`
-3. **Strict Array** (`IsArray` + indexed `Get`)
-   - Rejects non-`Array` objects with `TypeError`
+1. **Iterator protocol (`GetIterator`)**
+   - *Object-only:* `Iterator.zip` *(rejects primitives)*; `Iterator.concat` (`~reject-primitives~`)
+   - *General (iterates strings):* `Intl.ListFormat`, `Promise.all`, `Map` / `Set`, `Math.sumPrecise`
+2. **Array-like (`LengthOfArrayLike`)**
+   - `Function.prototype.apply`, `Reflect.apply`, `CanonicalizeLocaleList` *(ECMA-402)*
+3. **`IsArray` + indexed properties (`IsArray` + `LengthOfArrayLike`)**
+   - `JSON.stringify` (`replacer`; no built-in throws `TypeError` to require `IsArray`)
+4. **Hybrid: Iterable with Array-like fallback**
+   - `Array.from`, `Array.fromAsync`, `%TypedArray%.from`
 
 ---
 
-## TG2 Recommendation: Iterator Protocol (#20)
+## TG2 Recommendation: Object-Only Iterator (#20)
 
 <div class="columns">
 <div>
@@ -92,10 +95,10 @@ With `format()` and `formatToParts()` accepting `[5, 11]`, there are three conve
 </div>
 <div>
 
-**Why Option 1 (Iterator)?**
-- Directly aligns with `Intl.ListFormat`, which composes sequence unit output
-- Works seamlessly with `Array`, TypedArrays, sets, and custom iterables
-- Leading `Object` check prevents accidentally iterating primitive strings (e.g. `nf.format("56")` throws `TypeError`)
+**Why Object-Only `GetIterator`?**
+- Aligns with `Intl.ListFormat` (iterator-based) and `Iterator.zip` (rejecting primitives)
+- Accepts `Array`, TypedArrays, `Set`, generators, and custom iterables
+- **Why reject primitives?** Without step 1, `nf.format("56")` on `"foot-and-inch"` would iterate `"5"` and `"6"`, coerce both via `ToIntlMathematicalValue`, and silently return `"5 feet, 6 inches"`!
 
 </div>
 </div>
@@ -104,7 +107,7 @@ With `format()` and `formatToParts()` accepting `[5, 11]`, there are three conve
 
 ## Summary & Next Steps
 
-- **Issue #20:** Highlighting TG2's choice of the **iterator protocol** (`GetIterator` + `IteratorToList` on `Object` inputs) for plenary feedback
+- **Issue #20:** Highlighting TG2's choice of the **Object-only iterator protocol** (`GetIterator` + `IteratorToList`) for plenary feedback
 - **Draft Spec:** Complete and up to date at [tc39.es/proposal-intl-sequence-units](https://tc39.es/proposal-intl-sequence-units/)
 - **Stage 2.7 Reviewers:** Eemeli Aro (EAO) and Dan Minor (DLM)
 - **Next Time:** Requesting Stage 2.7 advancement
