@@ -59,7 +59,7 @@
 </head><body><details class="annoying-warning">
   <summary>PR #21</summary>
   <p>
-    This document is a preview of merging <a href="https://github.com/tc39/proposal-intl-sequence-units/pull/21">PR #21</a> as commit <a href="https://github.com/tc39/proposal-intl-sequence-units/commit/681c5ab6b599c6c586b65a0e18417325c1915335"><code>681c5ab6b599c6c586b65a0e18417325c1915335</code></a>.
+    This document is a preview of merging <a href="https://github.com/tc39/proposal-intl-sequence-units/pull/21">PR #21</a> as commit <a href="https://github.com/tc39/proposal-intl-sequence-units/commit/1a03372844efee2c47bdb18757b882356083e24f"><code>1a03372844efee2c47bdb18757b882356083e24f</code></a>.
   </p>
   <p>
     Do not reference it as authoritative in any way.
@@ -142,22 +142,28 @@ nf.<span class="hljs-title function_">format</span>([-<span class="hljs-number">
   gap: 1rem;
 }
 ;" data-marpit-pagination-total="5">
-<h2 id="issue-20-how-to-read-the-list-of-units">Issue #20: How to Read the List of Units?</h2>
-<p>With <code>format()</code> and <code>formatToParts()</code> accepting <code>[5, 11]</code>, there are three conventions in ECMA-262 / ECMA-402 for reading list inputs:</p>
+<h2 id="issue-20-precedents-for-reading-list-inputs">Issue #20: Precedents for Reading List Inputs</h2>
+<p>Across ECMA-262 and ECMA-402, there are <strong>four</strong> patterns for reading list-like arguments:</p>
 <ol>
-<li><strong>Iterator protocol</strong> (<code>GetIterator</code> + <code>IteratorToList</code>)
+<li><strong>Iterator protocol (<code>GetIterator</code>)</strong>
 <ul>
-<li>Precedent: <code>Intl.ListFormat</code> (<code>StringListFromIterable</code>)</li>
+<li><em>Object-only:</em> <code>Iterator.zip</code> <em>(rejects primitives)</em>; <code>Iterator.concat</code> (<code>~reject-primitives~</code>)</li>
+<li><em>General (iterates strings):</em> <code>Intl.ListFormat</code>, <code>Promise.all</code>, <code>Map</code> / <code>Set</code>, <code>Math.sumPrecise</code></li>
 </ul>
 </li>
-<li><strong>Array-like</strong> (<code>LengthOfArrayLike</code> + indexed <code>Get</code>)
+<li><strong>Array-like (<code>LengthOfArrayLike</code>)</strong>
 <ul>
-<li>Reads <code>.length</code> and properties <code>&quot;0&quot;</code> .. <code>length - 1</code></li>
+<li><code>Function.prototype.apply</code>, <code>Reflect.apply</code>, <code>CanonicalizeLocaleList</code> <em>(ECMA-402)</em></li>
 </ul>
 </li>
-<li><strong>Strict Array</strong> (<code>IsArray</code> + indexed <code>Get</code>)
+<li><strong><code>IsArray</code> + indexed properties (<code>IsArray</code> + <code>LengthOfArrayLike</code>)</strong>
 <ul>
-<li>Rejects non-<code>Array</code> objects with <code>TypeError</code></li>
+<li><code>JSON.stringify</code> (<code>replacer</code>; no built-in throws <code>TypeError</code> to require <code>IsArray</code>)</li>
+</ul>
+</li>
+<li><strong>Hybrid: Iterable with Array-like fallback</strong>
+<ul>
+<li><code>Array.from</code>, <code>Array.fromAsync</code>, <code>%TypedArray%.from</code></li>
 </ul>
 </li>
 </ol>
@@ -174,7 +180,7 @@ nf.<span class="hljs-title function_">format</span>([-<span class="hljs-number">
   gap: 1rem;
 }
 ;" data-marpit-pagination-total="5">
-<h2 id="tg2-recommendation-iterator-protocol-20">TG2 Recommendation: Iterator Protocol (#20)</h2>
+<h2 id="tg2-recommendation-object-only-iterator-20">TG2 Recommendation: Object-Only Iterator (#20)</h2>
 <div class="columns">
 <div>
 <p><strong><code>ToSequenceUnitList ( unit, value )</code>:</strong></p>
@@ -192,11 +198,11 @@ nf.<span class="hljs-title function_">format</span>([-<span class="hljs-number">
 </code></pre>
 </div>
 <div>
-<p><strong>Why Option 1 (Iterator)?</strong></p>
+<p><strong>Why Object-Only <code>GetIterator</code>?</strong></p>
 <ul>
-<li>Directly aligns with <code>Intl.ListFormat</code>, which composes sequence unit output</li>
-<li>Works seamlessly with <code>Array</code>, TypedArrays, sets, and custom iterables</li>
-<li>Leading <code>Object</code> check prevents accidentally iterating primitive strings (e.g. <code>nf.format(&quot;56&quot;)</code> throws <code>TypeError</code>)</li>
+<li>Aligns with <code>Intl.ListFormat</code> (iterator-based) and <code>Iterator.zip</code> (rejecting primitives)</li>
+<li>Accepts <code>Array</code>, TypedArrays, <code>Set</code>, generators, and custom iterables</li>
+<li><strong>Why reject primitives?</strong> Without step 1, <code>nf.format(&quot;56&quot;)</code> on <code>&quot;foot-and-inch&quot;</code> would iterate <code>&quot;5&quot;</code> and <code>&quot;6&quot;</code>, coerce both via <code>ToIntlMathematicalValue</code>, and silently return <code>&quot;5 feet, 6 inches&quot;</code>!</li>
 </ul>
 </div>
 </div>
@@ -215,7 +221,7 @@ nf.<span class="hljs-title function_">format</span>([-<span class="hljs-number">
 ;" data-marpit-pagination-total="5">
 <h2 id="summary--next-steps">Summary &amp; Next Steps</h2>
 <ul>
-<li><strong>Issue #20:</strong> Highlighting TG2's choice of the <strong>iterator protocol</strong> (<code>GetIterator</code> + <code>IteratorToList</code> on <code>Object</code> inputs) for plenary feedback</li>
+<li><strong>Issue #20:</strong> Highlighting TG2's choice of the <strong>Object-only iterator protocol</strong> (<code>GetIterator</code> + <code>IteratorToList</code>) for plenary feedback</li>
 <li><strong>Draft Spec:</strong> Complete and up to date at <a href="https://tc39.es/proposal-intl-sequence-units/">tc39.es/proposal-intl-sequence-units</a></li>
 <li><strong>Stage 2.7 Reviewers:</strong> Eemeli Aro (EAO) and Dan Minor (DLM)</li>
 <li><strong>Next Time:</strong> Requesting Stage 2.7 advancement</li>
