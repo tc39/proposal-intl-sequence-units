@@ -9,6 +9,9 @@ style: |
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
   }
+  table {
+    font-size: 0.76em;
+  }
 ---
 
 <!-- 
@@ -23,17 +26,17 @@ _color: #ffffff
 
 ---
 
-## Proposal Recap
+## Recap: Proposal & Sept 2026 Updates
 
 <div class="columns">
 <div>
 
-Extends `Intl.NumberFormat` to format sanctioned `-and-` unit sequences.
+Formats sanctioned `-and-` unit sequences in `Intl.NumberFormat`.
 
-**September 2026 Updates:**
-- **#16:** Switched input from object to array
-- **#14:** Disallowed significant digit options (`RangeError`)
-- **#8:** Excluded time sequence units from `Intl.NumberFormat`
+**Sept 2026 Updates:**
+- **#16:** Object → Array input
+- **#14:** Disallow sigfig options
+- **#8:** Exclude time units
 
 </div>
 <div>
@@ -58,56 +61,59 @@ nf.format([-5, -11]);
 
 ## Issue #20: Precedents for Reading List Inputs
 
-Across ECMA-262 and ECMA-402, there are **four** patterns for reading list-like arguments:
+Four list-reading patterns across ECMA-262 & 402 ([#19 audit](https://github.com/tc39/proposal-intl-sequence-units/issues/19#issuecomment-6875324113)):
 
-1. **Iterator protocol (`GetIterator`)**
-   - *Object-only:* `Iterator.zip` *(rejects primitives)*; `Iterator.concat` (`~reject-primitives~`)
-   - *General (iterates strings):* `Intl.ListFormat`, `Promise.all`, `Map` / `Set`, `Math.sumPrecise`
-2. **Array-like (`LengthOfArrayLike`)**
-   - `Function.prototype.apply`, `Reflect.apply`, `CanonicalizeLocaleList` *(ECMA-402)*
-3. **`IsArray` + indexed properties (`IsArray` + `LengthOfArrayLike`)**
-   - `JSON.stringify` (`replacer`; no built-in throws `TypeError` to require `IsArray`)
-4. **Hybrid: Iterable with Array-like fallback**
-   - `Array.from`, `Array.fromAsync`, `%TypedArray%.from`
+| Pattern | Spec Precedents | TypedArray | Iterables | `"56"` String |
+| :--- | :--- | :---: | :---: | :---: |
+| **1a. Object + `GetIterator`** | `Iterator.zip` | ✅ | ✅ | ✅ `TypeError` |
+| **1b. General `GetIterator`** | `Intl.ListFormat`, `Promise.all` | ✅ | ✅ | ❌ `"5"`, `"6"` |
+| **2. `LengthOfArrayLike`** | `Reflect.apply`, `CanonicalizeLocaleList` | ✅ | ❌ | ✅ / varies |
+| **3. `IsArray` + indexed** | `JSON.stringify` *(branching only)* | ❌ | ❌ | ✅ `TypeError` |
+| **4. Hybrid (`Array.from`)** | `Array.from`, `%TypedArray%.from` | ✅ | ✅ | ❌ `"5"`, `"6"` |
+
+*No built-in throws `TypeError` solely to enforce `IsArray`.*
 
 ---
 
-## TG2 Recommendation: Object-Only Iterator (#20)
+## Why Reject Primitives Before `GetIterator`?
 
-<div class="columns">
-<div>
+```javascript
+const ft = new Intl.NumberFormat("en", { style: "unit", unit: "foot" });
+ft.format("56"); // "56 feet" (numeric strings coerced)
 
-**`ToSequenceUnitList ( unit, value )`:**
-```
-1. If _value_ is not an Object,
-   throw a *TypeError* exception.
-2. Let _sequence_ be
-   StringSplitToList(_unit_, *"-and-"*).
-3. Let _iteratorRecord_ be
-   ? GetIterator(_value_, ~sync~).
-4. Let _iterableValues_ be
-   ? IteratorToList(_iteratorRecord_).
-5. If length of _iterableValues_ ≠
-   length of _sequence_, throw *RangeError*.
-...
+const fi = new Intl.NumberFormat("en", {
+  style: "unit", unit: "foot-and-inch"
+});
+fi.format("56");
+// General GetIterator:  "5 feet, 6 inches" ❌ (iterates chars!)
+// Object + GetIterator: TypeError          ✅
 ```
 
-</div>
-<div>
+- Matches `Intl.ListFormat` + `Iterator.zip` (rejecting primitives)
+- Leaves primitives free for future scalar extensions ([#12](https://github.com/tc39/proposal-intl-sequence-units/issues/12))
 
-**Why Object-Only `GetIterator`?**
-- Aligns with `Intl.ListFormat` (iterator-based) and `Iterator.zip` (rejecting primitives)
-- Accepts `Array`, TypedArrays, `Set`, generators, and custom iterables
-- **Why reject primitives?** Without step 1, `nf.format("56")` on `"foot-and-inch"` would iterate `"5"` and `"6"`, coerce both via `ToIntlMathematicalValue`, and silently return `"5 feet, 6 inches"`!
+---
 
-</div>
-</div>
+## TG2 Recommendation: `ToSequenceUnitList` (#20)
+
+```
+1. If value is not an Object, throw a TypeError exception.
+2. Let sequence be StringSplitToList(unit, "-and-").
+3. Let iteratorRecord be ? GetIterator(value, ~sync~).
+4. Let iterableValues be ? IteratorToList(iteratorRecord).
+5. If length of iterableValues ≠ length of sequence, throw RangeError.
+6. Convert each via ? ToIntlMathematicalValue (undefined → TypeError),
+   requiring matching signs & integer non-last values (→ RangeError).
+```
+
+- Accepts `Array`, TypedArrays, `Set`, and custom iterables
+- *Note: drains via `IteratorToList` (vs. bounded `IteratorClose`)*
 
 ---
 
 ## Summary & Next Steps
 
-- **Issue #20:** Highlighting TG2's choice of the **Object-only iterator protocol** (`GetIterator` + `IteratorToList`) for plenary feedback
-- **Draft Spec:** Complete and up to date at [tc39.es/proposal-intl-sequence-units](https://tc39.es/proposal-intl-sequence-units/)
+- **Issue #20:** Highlighting TG2's choice of **Object-only `GetIterator`** for plenary feedback
+- **Draft Spec:** Complete at [tc39.es/proposal-intl-sequence-units](https://tc39.es/proposal-intl-sequence-units/)
 - **Stage 2.7 Reviewers:** Eemeli Aro (EAO) and Dan Minor (DLM)
-- **Next Time:** Requesting Stage 2.7 advancement
+- **Next Plenary:** Requesting Stage 2.7 advancement
