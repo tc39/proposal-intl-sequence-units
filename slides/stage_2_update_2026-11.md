@@ -66,10 +66,10 @@ Four list-reading patterns across ECMA-262 & 402 ([#19 audit](https://github.com
 | Pattern | Spec Precedents | TypedArray | Iterables | `"56"` String |
 | :--- | :--- | :---: | :---: | :---: |
 | **1a. Object + `GetIterator`** | `Iterator.zip` | ✅ | ✅ | ✅ `TypeError` |
-| **1b. General `GetIterator`** | `Intl.ListFormat`, `Promise.all` | ✅ | ✅ | ❌ `"5"`, `"6"` |
+| **1b. General `GetIterator`** | `Intl.ListFormat`, `Promise.all` | ✅ | ✅ | 😕 `"5"`, `"6"` |
 | **2. `LengthOfArrayLike`** | `Reflect.apply`, `CanonicalizeLocaleList` | ✅ | ❌ | ✅ / varies |
 | **3. `IsArray` + indexed** | `JSON.stringify` *(branching only)* | ❌ | ❌ | ✅ `TypeError` |
-| **4. Hybrid (`Array.from`)** | `Array.from`, `%TypedArray%.from` | ✅ | ✅ | ❌ `"5"`, `"6"` |
+| **4. Hybrid (`Array.from`)** | `Array.from`, `%TypedArray%.from` | ✅ | ✅ | 😕 `"5"`, `"6"` |
 
 *No built-in throws `TypeError` solely to enforce `IsArray`.*
 
