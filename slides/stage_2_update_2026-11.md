@@ -10,7 +10,7 @@ style: |
     gap: 1rem;
   }
   table {
-    font-size: 0.76em;
+    font-size: 0.68em;
   }
 ---
 
@@ -63,15 +63,13 @@ nf.format([-5, -11]);
 
 Four list-reading patterns across ECMA-262 & 402 ([#19 audit](https://github.com/tc39/proposal-intl-sequence-units/issues/19#issuecomment-6875324113)):
 
-| Pattern | Spec Precedents | TypedArray | Iterables | `"56"` String |
+| Pattern | Spec Precedents | TypedArray | Iterable | `"56"` |
 | :--- | :--- | :---: | :---: | :---: |
-| **1a. Object + `GetIterator`** | `Iterator.zip` | ✅ | ✅ | ✅ `TypeError` |
-| **1b. General `GetIterator`** | `Intl.ListFormat`, `Promise.all` | ✅ | ✅ | ❌ `"5"`, `"6"` |
-| **2. `LengthOfArrayLike`** | `Reflect.apply`, `CanonicalizeLocaleList` | ✅ | ❌ | ✅ / varies |
-| **3. `IsArray` + indexed** | `JSON.stringify` *(branching only)* | ❌ | ❌ | ✅ `TypeError` |
-| **4. Hybrid (`Array.from`)** | `Array.from`, `%TypedArray%.from` | ✅ | ✅ | ❌ `"5"`, `"6"` |
-
-*No built-in throws `TypeError` solely to enforce `IsArray`.*
+| **Object + `GetIterator`** | `Iterator.zip` | ✅ | ✅ | ✅ `TypeError` |
+| **General `GetIterator`** | `Intl.ListFormat`, `Promise.all` | ✅ | ✅ | 😕 `"5"`, `"6"` |
+| **`LengthOfArrayLike`** | `CanonicalizeLocaleList`, `apply` | ✅ | ❌ | ✅ / varies |
+| **`IsArray` + indexed** | `JSON.stringify` *(branch only)* | ❌ | ❌ | ✅ `TypeError` |
+| **Hybrid** | `Array.from`, `%TypedArray%.from` | ✅ | ✅ | 😕 `"5"`, `"6"` |
 
 ---
 
@@ -113,7 +111,7 @@ fi.format("56");
 
 ## Summary & Next Steps
 
-- **Issue #20:** Highlighting TG2's choice of **Object-only `GetIterator`** for plenary feedback
+- **Open Question (#20):** Any concerns with using **Object-only `GetIterator`** in `ToSequenceUnitList`?
 - **Draft Spec:** Complete at [tc39.es/proposal-intl-sequence-units](https://tc39.es/proposal-intl-sequence-units/)
 - **Stage 2.7 Reviewers:** Eemeli Aro (EAO) and Dan Minor (DLM)
-- **Next Plenary:** Requesting Stage 2.7 advancement
+- **Next Steps:** Incorporate plenary & reviewer feedback toward Stage 2.7
